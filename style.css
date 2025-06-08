@@ -1,0 +1,241 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  background-color: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  display: flex; /* Делаем body flex-контейнером */
+  flex-direction: column; /* Элементы внутри body будут располагаться по вертикали */
+}
+
+#app-container {
+  flex-grow: 1; /* Позволяет app-container растягиваться на всю доступную высоту */
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex; /* Делаем app-container flex-контейнером */
+  flex-direction: column; /* Элементы внутри app-container будут располагаться по вертикали */
+  width: 100%; /* Убедимся, что он занимает всю ширину */
+  box-sizing: border-box; /* Важно для padding */
+}
+
+/* Стили для страниц */
+.page {
+  display: none; /* Все страницы по умолчанию скрыты */
+  flex-grow: 1; /* Позволяет страницам растягиваться на всю высоту */
+  flex-direction: column; /* Элементы внутри страницы будут располагаться по вертикали */
+}
+
+.page.active {
+  display: flex; /* Активная страница отображается и является flex-контейнером */
+}
+
+h1,
+h2,
+h3 {
+  color: var(--tg-theme-text-color);
+  text-align: center;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.main-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Промежуток между кнопками */
+  margin-top: 20px; /* Отступ сверху от заголовка */
+  flex-grow: 1; /* Позволяет блоку кнопок растягиваться на всю доступную высоту */
+  justify-content: center; /* Выравнивает кнопки по центру по вертикали */
+}
+
+.main-notice {
+  font-style: italic;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.main-button,
+.schedule-item button {
+  display: block;
+  height: 100%;
+  width: 100%;
+  padding: 15px 20px;
+  background-color: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1em;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.main-button {
+  font-size: 2em;
+  font-weight: bold;
+  unicode-bidi: isolate;
+}
+
+#open-pdf-button > p {
+  font-style: italic;
+  font-size: 14px;
+  text-align: center;
+  font-weight: normal;
+}
+
+.main-button:hover,
+.schedule-item button:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.schedule-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+/* Стили для блока расписания по дням */
+.schedule-day-block {
+  background-color: var(--tg-theme-secondary-bg-color);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-day-block h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--tg-theme-link-color); /* Или другой подходящий цвет */
+}
+
+.schedule-day-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.schedule-date {
+  display: flex;
+  justify-content: space-between;
+}
+
+.schedule-item {
+  display: grid;
+  grid-template-columns: max-content 1fr 150px;
+  gap: 10px;
+  background-color: var(--tg-theme-bg-color);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.schedule-item:last-child {
+  margin-bottom: 0;
+}
+
+.schedule-item strong {
+  color: var(--tg-theme-text-color); /* Цвет текста для заголовков полей */
+}
+
+.schedule-item p {
+  margin: 5px 0;
+}
+
+.schedule-item-no-subjects {
+  padding: 10px;
+  text-align: center;
+  color: var(--tg-theme-hint-color);
+  font-style: italic;
+}
+
+.schedule-item-subject {
+}
+
+.schedule-item-time {
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-item-time-start {
+  font-size: 1em;
+}
+
+.schedule-item-time-end {
+  font-size: 0.9em;
+}
+
+.schedule-item-info {
+  display: grid;
+  gap: 5px;
+}
+
+.schedule-item-classroom {
+  text-align: right;
+}
+
+.schedule-item-teacher {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+/* Стили для выделения сегодняшнего дня */
+.schedule-day-today {
+  border: 2px solid var(--tg-theme-button-color); /* Яркая рамка для сегодняшнего дня */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.schedule-day-today h3 {
+  color: var(--tg-theme-button-color); /* Изменяем цвет заголовка для сегодняшнего дня */
+}
+
+.back-button {
+  margin-top: 30px;
+  padding: 10px 15px;
+  background-color: var(--tg-theme-hint-color);
+  color: var(--tg-theme-bg-color);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 0.9em;
+}
+
+.back-button:hover {
+  filter: brightness(1.2);
+}
+
+/* Утилитарные классы для Telegram-темы */
+body.telegram-light {
+  --tg-theme-bg-color: #f0f0f0;
+  --tg-theme-text-color: #000000;
+  --tg-theme-hint-color: #999999;
+  --tg-theme-link-color: #0000ff;
+  --tg-theme-button-color: #0088cc;
+  --tg-theme-button-text-color: #ffffff;
+  --tg-theme-secondary-bg-color: #ffffff;
+}
+
+body.telegram-dark {
+  --tg-theme-bg-color: #18222d;
+  --tg-theme-text-color: #ffffff;
+  --tg-theme-hint-color: #6d7885;
+  --tg-theme-link-color: #63b3ed;
+  --tg-theme-button-color: #5288c3;
+  --tg-theme-button-text-color: #ffffff;
+  --tg-theme-secondary-bg-color: #242f3e;
+}
