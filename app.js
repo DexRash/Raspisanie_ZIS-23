@@ -281,16 +281,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Получаем контейнер для PNG изображений
-  pngViewerContainer = document.getElementById('png-viewer-container');
-  // Добавляем обработчики касаний к контейнеру
-  if (pngViewerContainer) {
-    pngViewerContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
-    pngViewerContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
-    pngViewerContainer.addEventListener('touchend', handleTouchEnd);
-    pngViewerContainer.addEventListener('touchcancel', handleTouchEnd); // На случай отмены касания
-  }
-
 
   // Изначально добавляем главную страницу в историю
   history.replaceState({ page: "page-main" }, "", "#page-main");
