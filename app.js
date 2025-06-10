@@ -5,41 +5,31 @@ document.addEventListener("DOMContentLoaded", () => {
         currentPage: "page-main",
         imageViewer: {
             isOpen: false,
-            currentIndex: 0,
             scale: 1,
             isDragging: false,
             startX: 0,
             startY: 0,
             translateX: 0,
             translateY: 0,
+            initialPinchDistance: null,
         },
     };
 
     const modal = document.getElementById("image-viewer-modal");
     const modalImg = document.getElementById("image-viewer-content");
-    const closeBtn = document.querySelector(".close-viewer-btn");
-    const prevBtn = document.querySelector(".prev-viewer-btn");
-    const nextBtn = document.querySelector(".next-viewer-btn");
 
     function applyTelegramTheme() {
         document.body.style.backgroundColor = tg.themeParams.bg_color;
         document.body.style.color = tg.themeParams.text_color;
         
-        document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color);
-        document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color);
-        document.documentElement.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color);
-        document.documentElement.style.setProperty('--tg-theme-link-color', tg.themeParams.link_color);
-        document.documentElement.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color);
-        document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color);
-        document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color);
-
-        if (tg.colorScheme === 'dark') {
-            document.body.classList.add('telegram-dark');
-            document.body.classList.remove('telegram-light');
-        } else {
-            document.body.classList.add('telegram-light');
-            document.body.classList.remove('telegram-dark');
-        }
+        const style = document.documentElement.style;
+        style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color);
+        style.setProperty('--tg-theme-text-color', tg.themeParams.text_color);
+        style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color);
+        style.setProperty('--tg-theme-link-color', tg.themeParams.link_color);
+        style.setProperty('--tg-theme-button-color', tg.themeParams.button_color);
+        style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color);
+        style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color);
     }
 
     function showPage(pageId, pushState = true) {
@@ -117,110 +107,106 @@ document.addEventListener("DOMContentLoaded", () => {
             img.src = url;
             img.alt = `Расписание - Страница ${index + 1}`;
             img.classList.add('png-list-item');
-            img.dataset.index = index;
-            img.addEventListener('click', () => openImageViewer(index));
+            img.addEventListener('click', () => openImageViewer(url));
             container.appendChild(img);
         });
     }
 
-    function openImageViewer(index) {
+    function openImageViewer(imageUrl) {
         appState.imageViewer.isOpen = true;
-        appState.imageViewer.currentIndex = index;
-        updateImageViewer();
+        modalImg.src = imageUrl;
         modal.style.display = "flex";
         tg.BackButton.hide();
     }
 
     function closeImageViewer() {
-        resetImageViewerState();
         modal.style.display = "none";
         appState.imageViewer.isOpen = false;
+        resetImageViewerState();
         if (appState.currentPage !== 'page-main') {
             tg.BackButton.show();
         }
     }
 
     function resetImageViewerState() {
-        appState.imageViewer.scale = 1;
-        appState.imageViewer.translateX = 0;
-        appState.imageViewer.translateY = 0;
-        modalImg.style.transform = `translate(0px, 0px) scale(1)`;
+        const viewerState = appState.imageViewer;
+        viewerState.scale = 1;
+        viewerState.translateX = 0;
+        viewerState.translateY = 0;
+        viewerState.isDragging = false;
+        viewerState.initialPinchDistance = null;
+        applyTransform();
         modalImg.classList.remove('zoomed');
     }
     
-    function updateImageViewer() {
-        resetImageViewerState();
-        modalImg.src = schedulePngsUrls[appState.imageViewer.currentIndex];
-    }
-    
-    function changeImage(direction) {
-        const newIndex = appState.imageViewer.currentIndex + direction;
-        const totalImages = schedulePngsUrls.length;
-        appState.imageViewer.currentIndex = (newIndex + totalImages) % totalImages;
-        updateImageViewer();
-    }
-    
-    function handleZoom(event) {
-        if (!appState.imageViewer.isOpen) return;
-        event.preventDefault();
-
-        const rect = modalImg.getBoundingClientRect();
-        const delta = event.deltaY > 0 ? -0.2 : 0.2;
-        const newScale = Math.max(1, Math.min(appState.imageViewer.scale + delta, 5));
-        
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
-
-        const newTranslateX = appState.imageViewer.translateX - (mouseX - appState.imageViewer.translateX) * (newScale / appState.imageViewer.scale - 1);
-        const newTranslateY = appState.imageViewer.translateY - (mouseY - appState.imageViewer.translateY) * (newScale / appState.imageViewer.scale - 1);
-
-        appState.imageViewer.scale = newScale;
-        appState.imageViewer.translateX = newTranslateX;
-        appState.imageViewer.translateY = newTranslateY;
-
-        applyTransform();
-    }
-
     function applyTransform() {
-        if (appState.imageViewer.scale <= 1) {
-            resetImageViewerState();
-        } else {
-             modalImg.style.transform = `translate(${appState.imageViewer.translateX}px, ${appState.imageViewer.translateY}px) scale(${appState.imageViewer.scale})`;
-             modalImg.classList.add('zoomed');
+        const viewerState = appState.imageViewer;
+        modalImg.style.transform = `translate(${viewerState.translateX}px, ${viewerState.translateY}px) scale(${viewerState.scale})`;
+    }
+    
+    function getDistance(touches) {
+        return Math.hypot(touches[0].pageX - touches[1].pageX, touches[0].pageY - touches[1].pageY);
+    }
+    
+    // --- Event Handlers ---
+
+    function onPointerDown(e) {
+        if (!appState.imageViewer.isOpen) return;
+        e.preventDefault();
+        const viewerState = appState.imageViewer;
+
+        if (e.pointerType === 'touch' && e.touches.length === 2) {
+            viewerState.initialPinchDistance = getDistance(e.touches);
+        } else if (viewerState.scale > 1) {
+            viewerState.isDragging = true;
+            viewerState.startX = e.clientX - viewerState.translateX;
+            viewerState.startY = e.clientY - viewerState.translateY;
+            modalImg.classList.add('zoomed');
         }
     }
-
-    function handleMouseDown(event) {
-        if (!appState.imageViewer.isOpen || appState.imageViewer.scale <= 1) return;
-        event.preventDefault();
-        appState.imageViewer.isDragging = true;
-        appState.imageViewer.startX = event.clientX - appState.imageViewer.translateX;
-        appState.imageViewer.startY = event.clientY - appState.imageViewer.translateY;
-        modalImg.style.cursor = 'grabbing';
-    }
-
-    function handleMouseMove(event) {
-        if (!appState.imageViewer.isDragging || !appState.imageViewer.isOpen) return;
-        event.preventDefault();
-        appState.imageViewer.translateX = event.clientX - appState.imageViewer.startX;
-        appState.imageViewer.translateY = event.clientY - appState.imageViewer.startY;
-        applyTransform();
-    }
-
-    function handleMouseUp() {
-        appState.imageViewer.isDragging = false;
-        modalImg.style.cursor = 'grab';
-    }
     
-    function handleDoubleClick() {
-        if(appState.imageViewer.scale > 1) {
-             resetImageViewerState();
-        } else {
-            appState.imageViewer.scale = 2.5;
+    function onPointerMove(e) {
+        if (!appState.imageViewer.isOpen) return;
+        e.preventDefault();
+        const viewerState = appState.imageViewer;
+
+        if (e.pointerType === 'touch' && e.touches.length === 2 && viewerState.initialPinchDistance) {
+            const newDist = getDistance(e.touches);
+            const scaleFactor = newDist / viewerState.initialPinchDistance;
+            viewerState.scale *= scaleFactor;
+            viewerState.scale = Math.max(1, Math.min(viewerState.scale, 5));
+            viewerState.initialPinchDistance = newDist;
+            applyTransform();
+        } else if (viewerState.isDragging) {
+            viewerState.translateX = e.clientX - viewerState.startX;
+            viewerState.translateY = e.clientY - viewerState.startY;
             applyTransform();
         }
     }
 
+    function onPointerUp(e) {
+        if (!appState.imageViewer.isOpen) return;
+        const viewerState = appState.imageViewer;
+        viewerState.isDragging = false;
+        viewerState.initialPinchDistance = null;
+        if (viewerState.scale <= 1) {
+            modalImg.classList.remove('zoomed');
+        }
+    }
+    
+    function onDoubleClick(e) {
+        if (!appState.imageViewer.isOpen) return;
+        const viewerState = appState.imageViewer;
+        if(viewerState.scale > 1) {
+             resetImageViewerState();
+        } else {
+            viewerState.scale = 2.5;
+            applyTransform();
+            modalImg.classList.add('zoomed');
+        }
+    }
+    
+    // --- Initialization ---
 
     tg.ready();
     tg.expand();
@@ -243,24 +229,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.onpopstate = (event) => {
         const page = (event.state && event.state.page) ? event.state.page : "page-main";
+        if (appState.imageViewer.isOpen) {
+             closeImageViewer();
+        }
         showPage(page, false);
     };
 
-    closeBtn.addEventListener("click", closeImageViewer);
-    prevBtn.addEventListener("click", () => changeImage(-1));
-    nextBtn.addEventListener("click", () => changeImage(1));
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeImageViewer();
+        }
+    });
     
-    modalImg.addEventListener('wheel', handleZoom);
-    modalImg.addEventListener('mousedown', handleMouseDown);
-    modal.addEventListener('mousemove', handleMouseMove);
-    modal.addEventListener('mouseup', handleMouseUp);
-    modal.addEventListener('mouseleave', handleMouseUp);
-    modalImg.addEventListener('dblclick', handleDoubleClick);
+    // Listeners for both Mouse and Touch
+    modalImg.addEventListener('mousedown', onPointerDown);
+    modalImg.addEventListener('mousemove', onPointerMove);
+    modal.addEventListener('mouseup', onPointerUp);
+    modal.addEventListener('mouseleave', onPointerUp);
+    
+    modalImg.addEventListener('touchstart', onPointerDown, { passive: false });
+    modalImg.addEventListener('touchmove', onPointerMove, { passive: false });
+    modalImg.addEventListener('touchend', onPointerUp);
+
+    modalImg.addEventListener('dblclick', onDoubleClick);
 
     document.addEventListener('keydown', (e) => {
-        if (!appState.imageViewer.isOpen) return;
-        if (e.key === 'Escape') closeImageViewer();
-        if (e.key === 'ArrowLeft') changeImage(-1);
-        if (e.key === 'ArrowRight') changeImage(1);
+        if (appState.imageViewer.isOpen && e.key === 'Escape') {
+             closeImageViewer();
+        }
     });
 });
