@@ -14,7 +14,7 @@ body {
   flex-direction: column; /* Элементы внутри body будут располагаться по вертикали */
 }
 
-/* Статичная тема оформления (светлая) */
+/* Статичная тема оформления (светлая) - будет перезаписана Telegram.WebApp.colorScheme */
 body.telegram-light {
   --tg-theme-bg-color: #f0f0f0;
   --tg-theme-text-color: #000000;
@@ -25,8 +25,7 @@ body.telegram-light {
   --tg-theme-secondary-bg-color: #ffffff;
 }
 
-/* Если хотите статичную темную тему, раскомментируйте этот блок и удалите telegram-light из body в index.html */
-/*
+/* Статичная тема оформления (темная) - будет перезаписана Telegram.WebApp.colorScheme */
 body.telegram-dark {
   --tg-theme-bg-color: #18222d;
   --tg-theme-text-color: #ffffff;
@@ -36,7 +35,6 @@ body.telegram-dark {
   --tg-theme-button-text-color: #ffffff;
   --tg-theme-secondary-bg-color: #242f3e;
 }
-*/
 
 #app-container {
   flex-grow: 1; /* Позволяет app-container растягиваться на всю доступную высоту */
@@ -67,6 +65,10 @@ h3 {
   text-align: center;
   flex-shrink: 0;
   margin: 0;
+}
+
+.main-title {
+  margin-bottom: 20px; /* Отступ под заголовком */
 }
 
 .main-buttons {
@@ -185,9 +187,6 @@ h3 {
   font-style: italic;
 }
 
-.schedule-item-subject {
-}
-
 .schedule-item-time {
   display: flex;
   flex-direction: column;
@@ -199,6 +198,9 @@ h3 {
 
 .schedule-item-time-end {
   font-size: 0.9em;
+}
+
+.schedule-item-subject {
 }
 
 .schedule-item-info {
@@ -243,33 +245,30 @@ h3 {
   filter: brightness(1.2);
 }
 
-/* PNG Viewer Styles */
+/* PNG Viewer Styles - очищены от зума */
 .png-viewer-container {
   flex-grow: 1;
-  overflow: hidden; /* Important to clip content when scaled/panned */
+  overflow-y: auto; /* Позволяет вертикальную прокрутку */
   display: flex;
-  flex-direction: column; /* Images will stack vertically */
-  align-items: center; /* Center images horizontally within the container */
+  flex-direction: column; /* Изображения будут отображаться друг под другом */
+  align-items: center; /* Центрируем изображения по горизонтали */
   padding: 10px;
   box-sizing: border-box;
   background-color: var(--tg-theme-secondary-bg-color);
   border-radius: 8px;
-  position: relative; /* Essential for transform to work correctly relative to its position */
-  transform-origin: 0 0; /* Top-left origin for transforms */
-  transition: transform 0.05s ease-out; /* Smooth transitions */
-  touch-action: none; /* Disable default browser touch actions (zoom, scroll) */
+  /* Удалены все transform и touch-action стили, связанные с зумом */
 }
 
 .png-viewer-container img {
-  max-width: 100%; /* Image initially fits container width */
-  height: auto; /* Maintain aspect ratio */
+  max-width: 100%; /* Изображение будет вписываться по ширине контейнера */
+  height: auto; /* Сохраняем пропорции */
   display: block;
-  margin-bottom: 10px; /* Space between images */
-  user-select: none; /* Prevent text selection on images */
-  -webkit-user-drag: none; /* Prevent image dragging */
+  margin-bottom: 10px; /* Отступ между изображениями */
+  user-select: none; /* Запрещаем выделение текста на изображениях */
+  -webkit-user-drag: none; /* Запрещаем перетаскивание изображений */
 }
 
-/* Remove bottom margin from the last image */
+/* Убираем нижний отступ у последней картинки */
 .png-viewer-container img:last-child {
     margin-bottom: 0;
 }
