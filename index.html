@@ -1,47 +1,52 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Расписание ЗИС-23</title>
     <link rel="stylesheet" href="./style.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
     <script src="./data.js"></script>
-    <script src="./app.js"></script>
-  </head>
-  <body class="telegram-light">
+    <script src="./app.js" defer></script>
+</head>
+<body>
     <div id="app-container">
-      <div id="page-main" class="page active">
-        <div class="main-title">
-          <h1>Расписание летней сессии</h1>
-          <h3>с 26.05.2025 по 11.06.2025</h3>
-        </div>
-        <div class="main-buttons">
-          <button class="main-button" data-target-page="zis231">Расписание ЗИС-231</button>
-          <button class="main-button" data-target-page="zis232">Расписание ЗИС-232</button>
-          <button class="main-button" data-target-page="pdf">Оригинальное расписание (PNG)</button>
-        </div>
-
-        <div class="main-notice">
-          Актуально на 08.06.2025 г.
-          <br />Возможны изменения, проверяйте на сайте СибГИУ. <br />Обновления не происходят
-          автоматически!
-        </div>
-      </div>
-
-      <div id="page-zis231" class="page">
-        <ul class="schedule-list" id="schedule-list-zis231"></ul>
-      </div>
-
-      <div id="page-zis232" class="page">
-        <ul class="schedule-list" id="schedule-list-zis232"></ul>
-      </div>
-
-      <div id="page-pdf" class="page">
-        <div class="png-viewer-container" id="png-viewer-container">
+        <div id="page-main" class="page active">
+            <div class="main-title">
+                <h1>Расписание летней сессии</h1>
+                <h3>с 26.05.2025 по 11.06.2025</h3>
             </div>
-      </div>
+            <div class="main-buttons">
+                <button class="main-button" data-target-page="zis231">Расписание ЗИС-231</button>
+                <button class="main-button" data-target-page="zis232">Расписание ЗИС-232</button>
+                <button class="main-button" data-target-page="png-list">Оригинальное расписание (PNG)</button>
+            </div>
+            <div class="main-notice">
+                Актуально на 08.06.2025 г.
+                <br />Возможны изменения, проверяйте на сайте СибГИУ. <br />Обновления не происходят автоматически!
+            </div>
+        </div>
+
+        <div id="page-zis231" class="page">
+            <ul class="schedule-list" id="schedule-list-zis231"></ul>
+        </div>
+
+        <div id="page-zis232" class="page">
+            <ul class="schedule-list" id="schedule-list-zis232"></ul>
+        </div>
+
+        <div id="page-png-list" class="page">
+            <div class="png-list-container" id="png-list-container">
+            </div>
+        </div>
     </div>
-  </body>
+
+    <div id="image-viewer-modal" class="image-viewer-modal">
+        <span class="close-viewer-btn">&times;</span>
+        <span class="prev-viewer-btn">&#10094;</span>
+        <span class="next-viewer-btn">&#10095;</span>
+        <img class="image-viewer-content" id="image-viewer-content">
+    </div>
+
+</body>
 </html>
