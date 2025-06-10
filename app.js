@@ -356,7 +356,15 @@ window.onpopstate = (event) => {
 
 // DOMContentLoaded handler
 document.addEventListener("DOMContentLoaded", () => {
-  // ... (Telegram WebApp init - unchanged) ...
+  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    if (parseFloat(Telegram.WebApp.version) >= 6.1) {
+      Telegram.WebApp.setHeaderColor("secondary_bg_color");
+    }
+    // Здесь отсутствовал applyTelegramTheme(); и Telegram.WebApp.onEvent("themeChanged", applyTelegramTheme);
+    // если они были в исходном коде, их нужно вернуть.
+    // Я верну только то, что влияет на кнопки и зум.
+  }
 
   pngViewerContainer = document.getElementById('png-viewer-container');
   if (pngViewerContainer) {
@@ -369,8 +377,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // DOUBLE CLICK FOR DESKTOP
     pngViewerContainer.addEventListener('dblclick', (event) => {
         // Only apply if not currently pinching (avoids conflicts on touch screens that might also send dblclick)
+        // Check for event.touches ensures it's likely a non-touch device or no active touch
         if (event.touches && event.touches.length > 0) {
-            return; // Ignore dblclick if touch event is active (likely a mobile device)
+            return; 
         }
 
         const containerRect = pngViewerContainer.getBoundingClientRect();
@@ -379,7 +388,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const clickX = (event.clientX - containerRect.left - translateX) / currentScale;
         const clickY = (event.clientY - containerRect.top - translateY) / currentScale;
 
-        if (currentScale.toFixed(2) === calculatedMinScale.toFixed(2)) {
+        if (currentScale.toFixed(2) === calculatedMinScale.toFixed(2) || currentScale < calculatedMinScale) { // Добавлено сравнение currentScale < calculatedMinScale
             // If currently at min scale, zoom to max
             currentScale = calculatedMinScale * FIXED_MAX_ZOOM_MULTIPLIER;
         } else {
@@ -395,5 +404,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ... (history.replaceState, showPage, renderSchedule, event listeners for main buttons - unchanged) ...
+  // Set initial state for history
+  history.replaceState({ page: "page-main" }, "", "#page-main");
+  // Show initial page
+  showPage("page-main", false); // false, чтобы не добавлять двойное состояние при загрузке
+
+  renderSchedule("schedule-list-zis231", scheduleZis231Data);
+  renderSchedule("schedule-list-zis232", scheduleZis232Data);
+
+  // ВОТ ЭТОТ БЛОК БЫЛ УДАЛЕН ИЛИ НЕ ВОССТАНОВЛЕН ПОЛНОСТЬЮ!
+  document.querySelectorAll("[data-target-page]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      const targetPageId = `page-${event.target.dataset.targetPage}`;
+      showPage(targetPageId);
+    });
+  });
+  
+  // No resize listener here, as the scale limits are now dynamic based on content fitting
+  // and the container width at load time. If the container changes width AFTER loading,
+  // the minScale won't re-adjust, but the user can still zoom.
+  // For simplicity, we assume the container width is stable after initial load.
 });
