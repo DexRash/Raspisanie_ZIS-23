@@ -37,13 +37,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (targetPage) {
             targetPage.classList.add("active");
         }
-
         currentPage = pageId;
-
         if (pushState) {
             history.pushState({ page: pageId }, "", `#${pageId}`);
         }
-
         if (pageId === "page-main") {
             tg.BackButton.hide();
         } else {
@@ -54,17 +51,13 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderSchedule(containerId, scheduleData) {
         const listContainer = document.getElementById(containerId);
         if (!listContainer) return;
-
         const groupedSchedule = scheduleData.reduce((acc, item) => {
             (acc[item.date] = acc[item.date] || []).push(item);
             return acc;
         }, {});
-
         const sortedDates = Object.keys(groupedSchedule).sort((a, b) => new Date(a.split('.').reverse().join('-')) - new Date(b.split('.').reverse().join('-')));
-        
         const today = new Date();
         const todayString = `${String(today.getDate()).padStart(2, "0")}.${String(today.getMonth() + 1).padStart(2, "0")}.${today.getFullYear()}`;
-
         let htmlContent = "";
         sortedDates.forEach(date => {
             const isToday = date === todayString;
@@ -72,11 +65,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const dateObject = new Date(date.split('.').reverse().join('-'));
             let dayOfWeek = dateObject.toLocaleDateString("ru-RU", { weekday: "long" });
             dayOfWeek = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
-
             htmlContent += `<li class="schedule-day-block ${isToday ? "schedule-day-today" : ""}">
                 <div class="schedule-date"><h3>${dayOfWeek}</h3><h3>${date} г.</h3></div>
                 <ul class="schedule-day-list">`;
-
             if (items.some(item => item.subject)) {
                 items.forEach(item => {
                     if (!item.subject) return;
@@ -146,11 +137,20 @@ document.addEventListener("DOMContentLoaded", () => {
         return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
     }
     
-    // --- Event Handlers ---
+    function constrainPan() {
+        const imgWidthScaled = modalImg.offsetWidth * viewerState.scale;
+        const imgHeightScaled = modalImg.offsetHeight * viewerState.scale;
+        const containerWidth = modal.clientWidth;
+        const containerHeight = modal.clientHeight;
+        const boundaryX = Math.max(0, (imgWidthScaled - containerWidth) / 2);
+        const boundaryY = Math.max(0, (imgHeightScaled - containerHeight) / 2);
+
+        viewerState.translateX = Math.max(-boundaryX, Math.min(boundaryX, viewerState.translateX));
+        viewerState.translateY = Math.max(-boundaryY, Math.min(boundaryY, viewerState.translateY));
+    }
 
     function onPointerDown(e) {
         if (!viewerState.isOpen || viewerState.isPinching) return;
-        
         if (viewerState.scale > 1) {
             e.preventDefault();
             viewerState.isDragging = true;
@@ -165,11 +165,12 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             viewerState.translateX = e.clientX - viewerState.startX;
             viewerState.translateY = e.clientY - viewerState.startY;
+            constrainPan();
             applyTransform();
         }
     }
 
-    function onPointerUp(e) {
+    function onPointerUp() {
         viewerState.isDragging = false;
     }
 
@@ -188,12 +189,9 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             const newDist = getDistance(e.touches);
             const scaleFactor = newDist / viewerState.initialPinchDistance;
-            
-            const newScale = Math.max(1, Math.min(viewerState.scale * scaleFactor, 5));
-            
-            viewerState.scale = newScale;
+            viewerState.scale *= scaleFactor;
             viewerState.initialPinchDistance = newDist;
-            
+            constrainPan();
             applyTransform();
         }
     }
@@ -201,15 +199,41 @@ document.addEventListener("DOMContentLoaded", () => {
     function onTouchEnd(e) {
         if (e.touches.length < 2) {
             viewerState.isPinching = false;
-            viewerState.initialPinchDistance = null;
-             if (viewerState.scale <= 1) {
+            if (viewerState.scale <= 1) {
                 resetImageViewerState();
+            } else {
+                constrainPan();
+                applyTransform();
             }
         }
     }
-    
-    // --- Initialization ---
 
+    function onWheel(e) {
+        if (!viewerState.isOpen) return;
+        e.preventDefault();
+        
+        const oldScale = viewerState.scale;
+        const delta = e.deltaY > 0 ? -0.2 : 0.2;
+        const newScale = Math.max(1, Math.min(oldScale + delta, 5));
+
+        if (newScale <= 1) {
+            resetImageViewerState();
+            return;
+        }
+
+        const rect = modal.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        viewerState.translateX = mouseX - (mouseX - viewerState.translateX) * (newScale / oldScale);
+        viewerState.translateY = mouseY - (mouseY - viewerState.translateY) * (newScale / oldScale);
+        viewerState.scale = newScale;
+
+        constrainPan();
+        applyTransform();
+        modalImg.classList.add('zoomed');
+    }
+    
     try {
         tg.ready();
         tg.expand();
@@ -219,7 +243,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch(e) {
         console.error("Telegram WebApp API not available.", e);
     }
-
 
     history.replaceState({ page: "page-main" }, "", "#page-main");
     showPage("page-main", false);
@@ -248,12 +271,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    modal.addEventListener('wheel', onWheel, { passive: false });
     modalImg.addEventListener('pointerdown', onPointerDown);
     modalImg.addEventListener('pointermove', onPointerMove);
     modalImg.addEventListener('pointerup', onPointerUp);
     modalImg.addEventListener('pointercancel', onPointerUp);
     modalImg.addEventListener('pointerleave', onPointerUp);
-
     modalImg.addEventListener('touchstart', onTouchStart, { passive: false });
     modalImg.addEventListener('touchmove', onTouchMove, { passive: false });
     modalImg.addEventListener('touchend', onTouchEnd);
