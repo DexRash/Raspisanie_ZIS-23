@@ -102,103 +102,13 @@ const formatTime = (timeString) => {
 // Текущая активная страница для отслеживания истории
 let currentPage = "page-main";
 
-// --- Переменные для Pinch-to-Zoom ---
-let currentScale = 1.0;
-let lastScale = 1.0;
-let startDistance = 0;
-let lastX = 0;
-let lastY = 0;
-let translateX = 0;
-let translateY = 0;
-let startTranslateX = 0;
-let startTranslateY = 0;
-let isPinching = false;
-let isDragging = false;
-
-const minScale = 0.5;
-const maxScale = 4.0;
-
-let pngViewerContainer; // Будет инициализирован при DOMContentLoaded
-
-// Функция для обновления трансформации (масштаб и смещение)
-const updateTransform = () => {
-    if (pngViewerContainer) {
-        pngViewerContainer.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
-    }
-};
-
-// Вычисление расстояния между двумя точками касания
-const getDistance = (touch1, touch2) => {
-    const dx = touch1.clientX - touch2.clientX;
-    const dy = touch1.clientY - touch2.clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-};
-
-// Обработчик начала касания
-const handleTouchStart = (event) => {
-    const touches = event.touches;
-    if (touches.length === 2) {
-        isPinching = true;
-        startDistance = getDistance(touches[0], touches[1]);
-        lastScale = currentScale; // Запоминаем текущий масштаб
-        
-        // Отменяем стандартное поведение, чтобы предотвратить прокрутку/зум браузера
-        event.preventDefault(); 
-    } else if (touches.length === 1 && currentScale > 1.0) { // Только для панорамирования при увеличении
-        isDragging = true;
-        lastX = touches[0].clientX;
-        lastY = touches[0].clientY;
-        startTranslateX = translateX;
-        startTranslateY = translateY;
-        event.preventDefault(); // Отменяем стандартное поведение
-    }
-};
-
-// Обработчик движения касания
-const handleTouchMove = (event) => {
-    const touches = event.touches;
-    if (isPinching && touches.length === 2) {
-        const currentDistance = getDistance(touches[0], touches[1]);
-        const scaleFactor = currentDistance / startDistance;
-        let newScale = lastScale * scaleFactor;
-
-        // Ограничиваем масштаб
-        newScale = Math.max(minScale, Math.min(maxScale, newScale));
-        currentScale = newScale;
-
-        // Также попробуем центрировать зум на средней точке между пальцами
-        // Это более сложная часть, требующая смещения центра трансформации
-        // Для простоты пока просто масштабируем, а панорамирование отдельным движением
-        updateTransform();
-        event.preventDefault();
-
-    } else if (isDragging && touches.length === 1) {
-        const dx = touches[0].clientX - lastX;
-        const dy = touches[0].clientY - lastY;
-        translateX = startTranslateX + dx;
-        translateY = startTranslateY + dy;
-        updateTransform();
-        event.preventDefault();
-    }
-};
-
-// Обработчик окончания касания
-const handleTouchEnd = () => {
-    isPinching = false;
-    isDragging = false;
-    // При отпускании пальцев можно "привязать" изображение к границам, если оно вышло за них
-    // (опционально, для более продвинутой реализации)
-};
-
+// Переменная для контейнера PNG изображений
+let pngViewerContainer; 
 
 // Функция для загрузки и отображения всех PNG изображений
 const loadAllPngs = () => {
     if (pngViewerContainer) {
         pngViewerContainer.innerHTML = ''; // Очищаем контейнер
-        currentScale = 1.0; // Сбрасываем масштаб при каждой новой загрузке
-        translateX = 0;
-        translateY = 0;
-        updateTransform(); // Применяем сброс
 
         if (schedulePngsUrls && schedulePngsUrls.length > 0) {
             schedulePngsUrls.forEach((url, index) => {
@@ -281,6 +191,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Получаем контейнер для PNG изображений
+  pngViewerContainer = document.getElementById('png-viewer-container');
+  // УДАЛЕНЫ обработчики касаний (touchstart, touchmove, touchend)
 
   // Изначально добавляем главную страницу в историю
   history.replaceState({ page: "page-main" }, "", "#page-main");
