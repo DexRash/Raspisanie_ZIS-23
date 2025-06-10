@@ -1,274 +1,282 @@
+:root {
+    --tg-theme-bg-color: #ffffff;
+    --tg-theme-text-color: #000000;
+    --tg-theme-hint-color: #999999;
+    --tg-theme-link-color: #0000ff;
+    --tg-theme-button-color: #0088cc;
+    --tg-theme-button-text-color: #ffffff;
+    --tg-theme-secondary-bg-color: #f0f0f0;
+}
+
 html,
 body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: "Roboto", sans-serif;
-  background-color: var(--tg-theme-bg-color);
-  color: var(--tg-theme-text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  display: flex; /* Делаем body flex-контейнером */
-  flex-direction: column; /* Элементы внутри body будут располагаться по вертикали */
-}
-
-/* Статичная тема оформления (светлая) - будет перезаписана Telegram.WebApp.colorScheme */
-body.telegram-light {
-  --tg-theme-bg-color: #f0f0f0;
-  --tg-theme-text-color: #000000;
-  --tg-theme-hint-color: #999999;
-  --tg-theme-link-color: #0000ff;
-  --tg-theme-button-color: #0088cc;
-  --tg-theme-button-text-color: #ffffff;
-  --tg-theme-secondary-bg-color: #ffffff;
-}
-
-/* Статичная тема оформления (темная) - будет перезаписана Telegram.WebApp.colorScheme */
-body.telegram-dark {
-  --tg-theme-bg-color: #18222d;
-  --tg-theme-text-color: #ffffff;
-  --tg-theme-hint-color: #6d7885;
-  --tg-theme-link-color: #63b3ed;
-  --tg-theme-button-color: #5288c3;
-  --tg-theme-button-text-color: #ffffff;
-  --tg-theme-secondary-bg-color: #242f3e;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #app-container {
-  flex-grow: 1; /* Позволяет app-container растягиваться на всю доступную высоту */
-  padding: 20px;
-  max-width: 600px;
-  margin: 0 auto;
-  display: flex; /* Делаем app-container flex-контейнером */
-  flex-direction: column; /* Элементы внутри app-container будут располагаться по вертикали */
-  width: 100%; /* Убедимся, что он занимает всю ширину */
-  box-sizing: border-box; /* Важно для padding */
+    height: 100%;
+    padding: 20px;
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-/* Стили для страниц */
 .page {
-  display: none; /* Все страницы по умолчанию скрыты */
-  flex-grow: 1; /* Позволяет страницам растягиваться на всю высоту */
-  flex-direction: column; /* Элементы внутри страницы будут располагаться по вертикали */
+    display: none;
+    flex-grow: 1;
+    flex-direction: column;
+    overflow-y: auto;
+    height: 100%;
 }
 
 .page.active {
-  display: flex; /* Активная страница отображается и является flex-контейнером */
+    display: flex;
 }
 
 h1,
-h2,
 h3 {
-  color: var(--tg-theme-text-color);
-  text-align: center;
-  flex-shrink: 0;
-  margin: 0;
+    color: var(--tg-theme-text-color);
+    text-align: center;
+    flex-shrink: 0;
+    margin: 0;
+}
+
+h1 {
+    font-size: 1.8em;
+}
+
+h3 {
+    font-size: 1.1em;
+    color: var(--tg-theme-hint-color);
+    font-weight: normal;
 }
 
 .main-title {
-  margin-bottom: 20px; /* Отступ под заголовком */
+    margin-bottom: 20px;
 }
 
 .main-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 20px; /* Промежуток между кнопками */
-  margin-top: 20px; /* Отступ сверху от заголовка */
-  flex-grow: 1; /* Позволяет блоку кнопок растягиваться на всю доступную высоту */
-  justify-content: center; /* Выравнивает кнопки по центру по вертикали */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    flex-grow: 1;
+    justify-content: center;
 }
 
 .main-notice {
-  font-style: italic;
-  font-size: 14px;
-  color: #666;
-  text-align: center;
-  margin-top: 10px;
-  padding: 10px;
-}
-
-.main-button,
-.schedule-item button {
-  display: block;
-  height: 100%;
-  width: 100%;
-  padding: 15px 20px;
-  background-color: var(--tg-theme-button-color);
-  color: var(--tg-theme-button-text-color);
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1em;
-  cursor: pointer;
-  text-decoration: none;
-  text-align: center;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+    font-size: 14px;
+    color: var(--tg-theme-hint-color);
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
 }
 
 .main-button {
-  font-size: 2em;
-  font-weight: bold;
-  unicode-bidi: isolate;
+    display: block;
+    width: 100%;
+    padding: 15px 20px;
+    background-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    border: none;
+    border-radius: 12px;
+    font-size: 1.5em;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: filter 0.2s ease, transform 0.1s ease;
 }
 
-#open-pdf-button > p {
-  font-style: italic;
-  font-size: 14px;
-  text-align: center;
-  font-weight: normal;
+.main-button:hover {
+    filter: brightness(1.1);
 }
 
-.main-button:hover,
-.schedule-item button:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
+.main-button:active {
+    transform: scale(0.98);
 }
 
 .schedule-list {
-  list-style: none;
-  padding: 0;
-  margin-top: 20px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-/* Стили для блока расписания по дням */
 .schedule-day-block {
-  background-color: var(--tg-theme-secondary-bg-color);
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: var(--tg-theme-secondary-bg-color);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
 }
 
 .schedule-day-block h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: var(--tg-theme-link-color); /* Или другой подходящий цвет */
-}
-
-.schedule-day-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--tg-theme-link-color);
+    font-size: 1.2em;
 }
 
 .schedule-date {
-  display: flex;
-  justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.schedule-day-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .schedule-item {
-  display: grid;
-  grid-template-columns: max-content 1fr 150px;
-  gap: 10px;
-  background-color: var(--tg-theme-bg-color);
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 15px;
+    align-items: center;
+    background-color: var(--tg-theme-bg-color);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
 }
 
 .schedule-item:last-child {
-  margin-bottom: 0;
-}
-
-.schedule-item strong {
-  color: var(--tg-theme-text-color); /* Цвет текста для заголовков полей */
-}
-
-.schedule-item p {
-  margin: 5px 0;
-}
-
-.schedule-item-no-subjects {
-  padding: 10px;
-  text-align: center;
-  color: var(--tg-theme-hint-color);
-  font-style: italic;
+    margin-bottom: 0;
 }
 
 .schedule-item-time {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    font-weight: 500;
 }
 
-.schedule-item-time-start {
-  font-size: 1em;
-}
-
-.schedule-item-time-end {
-  font-size: 0.9em;
+.schedule-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .schedule-item-subject {
+    font-weight: 600;
+    font-size: 1.1em;
 }
 
 .schedule-item-info {
-  display: grid;
-  gap: 5px;
+    font-size: 0.9em;
+    color: var(--tg-theme-hint-color);
 }
 
-.schedule-item-classroom {
-  text-align: right;
+.schedule-item-no-subjects {
+    padding: 20px;
+    text-align: center;
+    color: var(--tg-theme-hint-color);
+    font-style: italic;
 }
 
-.schedule-item-teacher {
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-end;
-}
-
-/* Стили для выделения сегодняшнего дня */
 .schedule-day-today {
-  border: 2px solid var(--tg-theme-button-color); /* Яркая рамка для сегодняшнего дня */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--tg-theme-button-color);
 }
 
-.schedule-day-today h3 {
-  color: var(--tg-theme-button-color); /* Изменяем цвет заголовка для сегодняшнего дня */
+/* --- PNG List Styles --- */
+.png-list-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    padding: 10px 0;
 }
 
-.back-button {
-  margin-top: 30px;
-  padding: 10px 15px;
-  background-color: var(--tg-theme-hint-color);
-  color: var(--tg-theme-bg-color);
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 0.9em;
+.png-list-item {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--tg-theme-hint-color);
 }
 
-.back-button:hover {
-  filter: brightness(1.2);
+.png-list-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* PNG Viewer Styles - очищены от зума */
-.png-viewer-container {
-  flex-grow: 1;
-  overflow-y: auto; /* Позволяет вертикальную прокрутку */
-  display: flex;
-  flex-direction: column; /* Изображения будут отображаться друг под другом */
-  align-items: center; /* Центрируем изображения по горизонтали */
-  padding: 10px;
-  box-sizing: border-box;
-  background-color: var(--tg-theme-secondary-bg-color);
-  border-radius: 8px;
-  /* Удалены все transform и touch-action стили, связанные с зумом */
+/* --- Image Viewer Modal Styles --- */
+.image-viewer-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
-.png-viewer-container img {
-  max-width: 100%; /* Изображение будет вписываться по ширине контейнера */
-  height: auto; /* Сохраняем пропорции */
-  display: block;
-  margin-bottom: 10px; /* Отступ между изображениями */
-  user-select: none; /* Запрещаем выделение текста на изображениях */
-  -webkit-user-drag: none; /* Запрещаем перетаскивание изображений */
+.image-viewer-content {
+    max-width: 95%;
+    max-height: 95%;
+    object-fit: contain;
+    cursor: grab;
+    transition: transform 0.2s ease-out;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
-/* Убираем нижний отступ у последней картинки */
-.png-viewer-container img:last-child {
-    margin-bottom: 0;
+.image-viewer-content.zoomed {
+    cursor: grabbing;
 }
+
+
+.close-viewer-btn, .prev-viewer-btn, .next-viewer-btn {
+    position: absolute;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background-color 0.2s;
+    padding: 0 15px;
+    background-color: rgba(0,0,0,0.3);
+}
+
+.close-viewer-btn {
+    top: 15px;
+    right: 35px;
+    font-size: 50px;
+    background: none;
+}
+
+.prev-viewer-btn, .next-viewer-btn {
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 5px;
+}
+
+.prev-viewer-btn {
+    left: 15px;
+}
+
+.next-viewer-btn {
+    right: 15px;
+}
+
+.close-viewer-btn:hover,
+.prev-viewer-btn:hover,
+.next-viewer-btn:hover {
+    background-color: rgba(0,0,0,0.6);
+}
+
