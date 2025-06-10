@@ -246,7 +246,7 @@ h3 {
 /* PNG Viewer Styles */
 .png-viewer-container {
   flex-grow: 1;
-  overflow: auto; /* Позволяет прокручивать изображение внутри контейнера */
+  overflow: hidden; /* Важно, чтобы содержимое обрезалось, а прокрутка контролировалась через JS */
   display: flex;
   flex-direction: column; /* Изображения будут отображаться друг под другом */
   align-items: center; /* Центрируем изображения по горизонтали */
@@ -254,11 +254,14 @@ h3 {
   box-sizing: border-box;
   background-color: var(--tg-theme-secondary-bg-color);
   border-radius: 8px;
-  /* УДАЛЕНЫ стили для трансформаций и touch-action */
+  position: relative; /* Необходимо для правильного позиционирования трансформированного содержимого */
+  transform-origin: 0 0; /* Точка трансформации: верхний левый угол */
+  transition: transform 0.05s ease-out; /* Более плавное изменение масштаба/позиции */
+  touch-action: none; /* Отключаем стандартный зум браузера и прокрутку для этого элемента */
 }
 
 .png-viewer-container img {
-  max-width: 100%; /* Изображение будет всегда вписываться по ширине контейнера */
+  max-width: 100%; /* Изображение изначально вписывается по ширине контейнера */
   height: auto; /* Сохраняем пропорции */
   display: block;
   margin-bottom: 10px; /* Отступ между изображениями */
