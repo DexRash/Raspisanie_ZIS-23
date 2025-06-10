@@ -14,6 +14,30 @@ body {
   flex-direction: column; /* Элементы внутри body будут располагаться по вертикали */
 }
 
+/* Статичная тема оформления (светлая) */
+body.telegram-light {
+  --tg-theme-bg-color: #f0f0f0;
+  --tg-theme-text-color: #000000;
+  --tg-theme-hint-color: #999999;
+  --tg-theme-link-color: #0000ff;
+  --tg-theme-button-color: #0088cc;
+  --tg-theme-button-text-color: #ffffff;
+  --tg-theme-secondary-bg-color: #ffffff;
+}
+
+/* Если хотите статичную темную тему, раскомментируйте этот блок и удалите telegram-light из body в index.html */
+/*
+body.telegram-dark {
+  --tg-theme-bg-color: #18222d;
+  --tg-theme-text-color: #ffffff;
+  --tg-theme-hint-color: #6d7885;
+  --tg-theme-link-color: #63b3ed;
+  --tg-theme-button-color: #5288c3;
+  --tg-theme-button-text-color: #ffffff;
+  --tg-theme-secondary-bg-color: #242f3e;
+}
+*/
+
 #app-container {
   flex-grow: 1; /* Позволяет app-container растягиваться на всю доступную высоту */
   padding: 20px;
@@ -136,7 +160,7 @@ h3 {
   grid-template-columns: max-content 1fr 150px;
   gap: 10px;
   background-color: var(--tg-theme-bg-color);
-  border-radius: 8px;
+  border-radius: 8 巴;
   padding: 10px;
   margin-bottom: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -219,23 +243,33 @@ h3 {
   filter: brightness(1.2);
 }
 
-/* Утилитарные классы для Telegram-темы */
-body.telegram-light {
-  --tg-theme-bg-color: #f0f0f0;
-  --tg-theme-text-color: #000000;
-  --tg-theme-hint-color: #999999;
-  --tg-theme-link-color: #0000ff;
-  --tg-theme-button-color: #0088cc;
-  --tg-theme-button-text-color: #ffffff;
-  --tg-theme-secondary-bg-color: #ffffff;
+/* PNG Viewer Styles for Pinch-to-Zoom */
+.png-viewer-container {
+  flex-grow: 1;
+  overflow: hidden; /* Важно, чтобы содержимое обрезалось, а прокрутка контролировалась через JS */
+  display: flex;
+  flex-direction: column; /* Изображения будут отображаться друг под другом */
+  align-items: center; /* Центрируем изображения по горизонтали */
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: var(--tg-theme-secondary-bg-color);
+  border-radius: 8px;
+  /* Для трансформаций */
+  position: relative; /* Необходимо для правильного позиционирования трансформированного содержимого */
+  transform-origin: 0 0; /* Точка трансформации: верхний левый угол */
+  transition: transform 0.05s ease-out; /* Более плавное изменение масштаба/позиции */
+  touch-action: none; /* Отключаем стандартный зум браузера и прокрутку для этого элемента */
 }
 
-body.telegram-dark {
-  --tg-theme-bg-color: #18222d;
-  --tg-theme-text-color: #ffffff;
-  --tg-theme-hint-color: #6d7885;
-  --tg-theme-link-color: #63b3ed;
-  --tg-theme-button-color: #5288c3;
-  --tg-theme-button-text-color: #ffffff;
-  --tg-theme-secondary-bg-color: #242f3e;
+.png-viewer-container img {
+  max-width: 100%; /* Изображение изначально вписывается по ширине контейнера */
+  height: auto; /* Сохраняем пропорции */
+  display: block;
+  user-select: none; /* Запрещаем выделение текста на изображениях */
+  -webkit-user-drag: none; /* Запрещаем перетаскивание изображений */
+}
+
+/* Убираем нижний отступ у последней картинки */
+.png-viewer-container img:last-child {
+    margin-bottom: 0;
 }
