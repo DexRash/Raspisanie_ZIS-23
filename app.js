@@ -1,20 +1,17 @@
-// Функция для рендеринга списка расписания
+// Function for rendering schedule (unchanged)
 const renderSchedule = (containerId, scheduleData) => {
   const listContainer = document.getElementById(containerId);
   if (listContainer) {
-    // Группируем расписание по дате
     const groupedSchedule = scheduleData.reduce((acc, item) => {
       if (!acc[item.date]) {
         acc[item.date] = [];
       }
-      // Только добавляем предмет, если он существует
       if (item.subject) {
         acc[item.date].push(item);
       }
       return acc;
     }, {});
 
-    // Добавляем даты, которые могут не иметь предметов, но присутствуют в исходных данных
     scheduleData.forEach((item) => {
       if (!groupedSchedule[item.date]) {
         groupedSchedule[item.date] = [];
@@ -95,259 +92,195 @@ const formatTime = (timeString) => {
       `;
   };
   
-// Текущая активная страница для отслеживания истории
 let currentPage = "page-main";
 
-// --- Переменные для Pinch-to-Zoom (мобильная версия) ---
+// --- Pinch-to-Zoom variables ---
 let currentScale = 1.0;
 let lastScale = 1.0;
-let startDistance = 0; // Для pinch-to-zoom
-let lastX = 0; // Для панорамирования
-let lastY = 0; // Для панорамирования
-let translateX = 0; // Текущее смещение по X
-let translateY = 0; // Текущее смещение по Y
-let startTranslateX = 0; // Начальное смещение при начале панорамирования
-let startTranslateY = 0; // Начальное смещение при начале панорамирования
+let startDistance = 0; 
+let lastX = 0; 
+let lastY = 0; 
+let translateX = 0; 
+let translateY = 0; 
+let startTranslateX = 0; 
+let startTranslateY = 0; 
 let isPinching = false;
 let isDragging = false;
-let isSingleTouch = false; // Флаг для определения одиночного касания
-let originalImageWidth = 0; // Ширина первого изображения (предполагаем, что все одинаковые)
-let originalImageHeight = 0; // Высота первого изображения (предполагаем, что все одинаковые)
-let contentTotalHeight = 0; // Общая высота всех изображений (с отступами)
+let isSingleTouch = false;
 
-let pngViewerContainer; // Будет инициализирован при DOMContentLoaded
+// Fixed min/max scale values
+const MIN_SCALE = 1.0; // Can't zoom out smaller than 100%
+const MAX_SCALE = 3.0; // Max zoom level (e.g., 3x original size, adjust as needed)
 
-// --- Добавленная функция для определения мобильного устройства ---
-const isMobileDevice = () => {
-    return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('Mobi') !== -1);
-};
+let pngViewerContainer;
 
-
-// Функция для обновления трансформации (масштаб и смещение)
+// Function to update transformation (scale and translate)
 const updateTransform = () => {
     if (pngViewerContainer) {
-        // На десктопе, всегда показываем 100% ширины, без зума и панорамирования
-        if (!isMobileDevice()) {
-            pngViewerContainer.style.transform = `translate(0px, 0px) scale(1.0)`;
-            pngViewerContainer.style.overflow = 'auto'; // Включаем скролл на десктопе
-            pngViewerContainer.style.touchAction = 'auto'; // Возвращаем системный touch-action
-            return; // Завершаем функцию, если это десктоп
-        }
-
-        // Логика для мобильных устройств (зум и панорамирование)
-        pngViewerContainer.style.overflow = 'hidden'; // Скрываем скролл на мобиле
-        pngViewerContainer.style.touchAction = 'none'; // Отключаем системный touch-action
-        
-        const scaledContentWidth = pngViewerContainer.scrollWidth * currentScale;
-        const scaledContentHeight = contentTotalHeight * currentScale; 
-        
         const containerWidth = pngViewerContainer.clientWidth;
-        const containerHeight = pngViewerContainer.clientHeight; 
-
-        // Горизонтальные ограничения
-        let maxX = Math.max(0, scaledContentWidth - containerWidth);
-        let minX = -maxX;
-        if (scaledContentWidth < containerWidth) { 
-            minX = maxX = (containerWidth - scaledContentWidth) / 2;
-        }
-
-        // Вертикальные ограничения
-        let maxY = Math.max(0, scaledContentHeight - containerHeight);
-        let minY = -maxY;
-        if (scaledContentHeight < containerHeight) { 
-            minY = maxY = (containerHeight - scaledContentHeight) / 2;
-        }
+        const containerHeight = pngViewerContainer.clientHeight;
         
-        translateX = Math.max(minX, Math.min(maxX, translateX));
-        translateY = Math.max(minY, Math.min(maxY, translateY));
+        // Get the actual scrollable width and height of the content before scaling
+        // offsetWidth/offsetHeight includes padding and border
+        const contentWidth = pngViewerContainer.scrollWidth;
+        const contentHeight = pngViewerContainer.scrollHeight;
 
+        const scaledContentWidth = contentWidth * currentScale;
+        const scaledContentHeight = contentHeight * currentScale;
+
+        // Calculate boundaries for translation (panning)
+        let maxX = Math.max(0, scaledContentWidth - containerWidth) / 2;
+        let minX = -maxX;
+        // If scaled content is smaller than container, center it
+        if (scaledContentWidth < containerWidth) {
+            translateX = (containerWidth - scaledContentWidth) / 2;
+        } else {
+            translateX = Math.max(-maxX, Math.min(maxX, translateX));
+        }
+
+        let maxY = Math.max(0, scaledContentHeight - containerHeight) / 2;
+        let minY = -maxY;
+        // If scaled content is smaller than container, center it
+        if (scaledContentHeight < containerHeight) {
+            translateY = (containerHeight - scaledContentHeight) / 2;
+        } else {
+            translateY = Math.max(-maxY, Math.min(maxY, translateY));
+        }
+
+        // Apply transformation
         pngViewerContainer.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
     }
 };
 
-// Вычисление расстояния между двумя точками касания
+// Calculate distance between two touch points
 const getDistance = (touch1, touch2) => {
     const dx = touch1.clientX - touch2.clientX;
     const dy = touch1.clientY - touch2.clientY;
     return Math.sqrt(dx * dx + dy * dy);
 };
 
-// Обработчик начала касания
+// Touch start handler
 const handleTouchStart = (event) => {
-    if (!isMobileDevice()) return; // Только для мобильных устройств
-
     const touches = event.touches;
     
     if (touches.length === 2) {
         isPinching = true;
         startDistance = getDistance(touches[0], touches[1]);
-        lastScale = currentScale; 
+        lastScale = currentScale;
         
+        // Get initial mid-point for zoom origin
         lastX = (touches[0].clientX + touches[1].clientX) / 2;
         lastY = (touches[0].clientY + touches[1].clientY) / 2;
 
         startTranslateX = translateX;
         startTranslateY = translateY;
         
-        event.preventDefault(); 
-    } else if (touches.length === 1 && currentScale > pngViewerContainer.clientWidth / originalImageWidth) { // Только для панорамирования при увеличении
+        event.preventDefault(); // Prevent default browser zoom/scroll
+    } else if (touches.length === 1 && currentScale > MIN_SCALE) { // Only allow dragging if zoomed in
         isDragging = true;
-        isSingleTouch = true; 
+        isSingleTouch = true;
         lastX = touches[0].clientX;
         lastY = touches[0].clientY;
         startTranslateX = translateX;
         startTranslateY = translateY;
-        event.preventDefault(); 
+        event.preventDefault(); // Prevent default browser scroll
     }
 };
 
-// Обработчик движения касания
+// Touch move handler
 const handleTouchMove = (event) => {
-    if (!isMobileDevice()) return; // Только для мобильных устройств
-
     const touches = event.touches;
     if (isPinching && touches.length === 2) {
         const currentDistance = getDistance(touches[0], touches[1]);
         const scaleFactor = currentDistance / startDistance;
         let newScale = lastScale * scaleFactor;
 
-        // Ограничиваем масштаб
-        const minScale = pngViewerContainer.clientWidth / originalImageWidth; 
-        const maxScale = 1.0; // Оригинальный размер изображения
+        // Apply scale limits
+        newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
         
-        newScale = Math.max(minScale, Math.min(maxScale, newScale));
-        
-        const currentMidX = (touches[0].clientX + touches[1].clientX) / 2;
-        const currentMidY = (touches[0].clientY + touches[1].clientY) / 2;
-
-        const oldScale = currentScale;
-        currentScale = newScale;
-
+        // Calculate new translation to keep the zoom origin centered
         const containerRect = pngViewerContainer.getBoundingClientRect();
-        const zoomPointX = (lastX - containerRect.left - translateX) / oldScale;
-        const zoomPointY = (lastY - containerRect.top - translateY) / oldScale;
+        const zoomPointX = (lastX - containerRect.left - startTranslateX) / lastScale;
+        const zoomPointY = (lastY - containerRect.top - startTranslateY) / lastScale;
 
-        translateX += (currentMidX - lastX) - (zoomPointX * (currentScale - oldScale));
-        translateY += (currentMidY - lastY) - (zoomPointY * (currentScale - oldScale));
+        translateX = startTranslateX + (lastX - (touches[0].clientX + touches[1].clientX) / 2) - (zoomPointX * (newScale - lastScale));
+        translateY = startTranslateY + (lastY - (touches[0].clientY + touches[1].clientY) / 2) - (zoomPointY * (newScale - lastScale));
         
-        lastX = currentMidX;
-        lastY = currentMidY;
-
+        currentScale = newScale;
         updateTransform();
         event.preventDefault();
 
     } else if (isDragging && touches.length === 1 && isSingleTouch) {
         const dx = touches[0].clientX - lastX;
         const dy = touches[0].clientY - lastY;
-        translateX += dx;
-        translateY += dy;
-        lastX = touches[0].clientX;
-        lastY = touches[0].clientY;
+        
+        translateX = startTranslateX + dx;
+        translateY = startTranslateY + dy;
+        
         updateTransform();
         event.preventDefault();
     }
 };
 
-// Обработчик окончания касания
+// Touch end handler
 const handleTouchEnd = (event) => {
-    if (!isMobileDevice()) return; // Только для мобильных устройств
-
-    if (event.touches.length === 0) { 
+    if (event.touches.length === 0) {
         isPinching = false;
         isDragging = false;
         isSingleTouch = false;
-        updateTransform(); 
+        updateTransform(); // Re-apply boundaries after zoom/pan ends
     }
 };
 
 
-// Функция для загрузки и отображения всех PNG изображений
+// Function to load and display all PNG images
 const loadAllPngs = () => {
     if (pngViewerContainer) {
-        pngViewerContainer.innerHTML = ''; 
+        pngViewerContainer.innerHTML = ''; // Clear container
+        currentScale = MIN_SCALE; // Reset scale to minimum (100% width)
+        translateX = 0;
+        translateY = 0;
         
-        // Сбрасываем масштаб и позицию только для мобильных
-        if (isMobileDevice()) {
-            currentScale = 1.0; 
-            translateX = 0;
-            translateY = 0;
-        } else {
-            // На десктопе всегда сбрасываем, но не применяем transform,
-            // т.к. updateTransform для десктопа уже игнорирует transform
-            currentScale = 1.0;
-            translateX = 0;
-            translateY = 0;
-        }
-        
-        originalImageWidth = 0; 
-        originalImageHeight = 0;
-        contentTotalHeight = 0; 
-        
-        if (schedulePngsUrls && schedulePngsUrls.length > 0) {
-            let loadedImagesCount = 0;
-            const images = [];
-
-            schedulePngsUrls.forEach((url, index) => {
-                const img = new Image(); 
+        // Use a Promise.all to ensure all images are loaded before calculating initial scale
+        const imageLoadPromises = schedulePngsUrls.map((url) => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
                 img.src = url;
-                img.alt = `Расписание - Страница ${index + 1}`;
-                img.classList.add('schedule-png-image'); 
-                
+                img.alt = `Расписание - Страница`; // Removed index for generic alt
+                img.classList.add('schedule-png-image');
                 img.onload = () => {
-                    loadedImagesCount++;
-                    
-                    if (index === 0) {
-                        originalImageWidth = img.naturalWidth;
-                        originalImageHeight = img.naturalHeight;
-                    }
-                    
-                    // Для всех изображений, включая те, что уже в DOM
-                    contentTotalHeight = Array.from(pngViewerContainer.children).reduce((sum, el) => {
-                        return sum + el.offsetHeight + (el.nextElementSibling ? 10 : 0); // 10px - margin-bottom
-                    }, 0);
-
-                    if (loadedImagesCount === schedulePngsUrls.length) {
-                        // Убираем лишний margin-bottom для последнего изображения
-                        if (images.length > 0) {
-                            images[images.length - 1].style.marginBottom = '0';
-                        }
-                        
-                        // Инициализируем начальный масштаб только для мобильных
-                        if (isMobileDevice()) {
-                            currentScale = pngViewerContainer.clientWidth / originalImageWidth;
-                            if (currentScale > 1.0) currentScale = 1.0; 
-                        } else {
-                            // На десктопе scale всегда 1.0 (CSS handles initial fit)
-                            currentScale = 1.0; 
-                        }
-                        
-                        updateTransform(); 
-                    }
+                    pngViewerContainer.appendChild(img); // Append after load to get correct dimensions
+                    resolve();
                 };
                 img.onerror = () => {
                     console.error(`Ошибка загрузки изображения: ${url}`);
-                    loadedImagesCount++;
-                    if (loadedImagesCount === schedulePngsUrls.length) {
-                        if (isMobileDevice()) {
-                            currentScale = pngViewerContainer.clientWidth / originalImageWidth;
-                            if (currentScale > 1.0) currentScale = 1.0;
-                        } else {
-                            currentScale = 1.0;
-                        }
-                        updateTransform();
-                    }
+                    // Optionally append a placeholder or error message
+                    const errorDiv = document.createElement('div');
+                    errorDiv.textContent = `Не удалось загрузить изображение: ${url}`;
+                    errorDiv.style.color = 'red';
+                    pngViewerContainer.appendChild(errorDiv);
+                    resolve(); // Resolve even on error to not block Promise.all
                 };
-                images.push(img); 
-                pngViewerContainer.appendChild(img); 
             });
-        } else {
-            pngViewerContainer.innerHTML = '<p>Изображения расписания отсутствуют.</p>';
-        }
+        });
+
+        Promise.all(imageLoadPromises).then(() => {
+            // After all images are appended and rendered, calculate initial scale
+            // The initial scale will fit the images to the container width,
+            // which is effectively `MIN_SCALE` (1.0).
+            // No need to explicitly calculate `minScale` based on `originalImageWidth` here
+            // because `max-width: 100%` in CSS already handles initial fitting.
+            // We just ensure currentScale starts at MIN_SCALE.
+            updateTransform(); // Apply initial transform
+        }).catch((error) => {
+            console.error("Ошибка при загрузке всех изображений:", error);
+        });
+
     }
 };
 
 
-// Функция для переключения страниц
+// Function to switch pages (unchanged, except loadAllPngs call)
 const showPage = (pageId, pushState = true) => {
   document.querySelectorAll(".page").forEach((page) => {
     page.classList.remove("active");
@@ -381,6 +314,7 @@ const showPage = (pageId, pushState = true) => {
   }
 };
 
+// Popstate handler (unchanged)
 window.onpopstate = (event) => {
   if (event.state && event.state.page) {
     showPage(event.state.page, false);
@@ -390,6 +324,7 @@ window.onpopstate = (event) => {
 };
 
 
+// DOMContentLoaded handler
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
     Telegram.WebApp.ready();
@@ -400,17 +335,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   pngViewerContainer = document.getElementById('png-viewer-container');
   if (pngViewerContainer) {
-    // Прикрепляем/открепляем слушатели только для мобильных устройств
-    if (isMobileDevice()) {
-        pngViewerContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
-        pngViewerContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
-        pngViewerContainer.addEventListener('touchend', handleTouchEnd);
-        pngViewerContainer.addEventListener('touchcancel', handleTouchEnd); 
-    } else {
-        // Для десктопа убираем touch-action: none и overflow: hidden, чтобы браузер мог скроллить и зумить нативно
-        pngViewerContainer.style.touchAction = 'auto';
-        pngViewerContainer.style.overflow = 'auto';
-    }
+    pngViewerContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+    pngViewerContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+    pngViewerContainer.addEventListener('touchend', handleTouchEnd);
+    pngViewerContainer.addEventListener('touchcancel', handleTouchEnd); 
   }
 
   history.replaceState({ page: "page-main" }, "", "#page-main");
@@ -425,23 +353,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  window.addEventListener('resize', () => {
-      if (currentPage === 'page-pdf' && pngViewerContainer.children.length > 0) {
-          // При изменении размера окна, пересчитываем minScale и применяем его
-          if (originalImageWidth > 0) {
-              if (isMobileDevice()) {
-                  currentScale = pngViewerContainer.clientWidth / originalImageWidth;
-                  if (currentScale > 1.0) currentScale = 1.0;
-                  translateX = 0; 
-                  translateY = 0;
-              } else {
-                  // На десктопе всегда сбрасываем до 1.0 и 0 смещений
-                  currentScale = 1.0;
-                  translateX = 0;
-                  translateY = 0;
-              }
-              updateTransform();
-          }
-      }
-  });
+  // Removed resize listener, as the scale limits are now fixed.
+  // The initial `max-width: 100%` will handle initial fitting.
 });
