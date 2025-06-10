@@ -1,28 +1,3 @@
-// Функция для применения темы Telegram
-const applyTelegramTheme = () => {
-  const themeParams = Telegram.WebApp.themeParams;
-  const body = document.body;
-
-  if (themeParams) {
-    for (const key in themeParams) {
-      if (themeParams.hasOwnProperty(key)) {
-        body.style.setProperty(`--tg-theme-${key.replace(/_color/, "-color")}`, themeParams[key]);
-      }
-    }
-
-    if (themeParams.bg_color === "#ffffff" || themeParams.bg_color === "#f0f0f0") {
-      body.classList.remove("telegram-dark");
-      body.classList.add("telegram-light");
-    } else {
-      body.classList.remove("telegram-light");
-      body.classList.add("telegram-dark");
-    }
-  } else {
-    body.classList.add("telegram-light");
-    console.warn("Telegram WebApp themeParams not available. Using default light theme.");
-  }
-};
-
 // Функция для рендеринга списка расписания
 const renderSchedule = (containerId, scheduleData) => {
   const listContainer = document.getElementById(containerId);
@@ -124,9 +99,124 @@ const formatTime = (timeString) => {
       `;
   };
   
+// Текущая активная страница для отслеживания истории
+let currentPage = "page-main";
+
+// --- Переменные для Pinch-to-Zoom ---
+let currentScale = 1.0;
+let lastScale = 1.0;
+let startDistance = 0;
+let lastX = 0;
+let lastY = 0;
+let translateX = 0;
+let translateY = 0;
+let startTranslateX = 0;
+let startTranslateY = 0;
+let isPinching = false;
+let isDragging = false;
+
+const minScale = 0.5;
+const maxScale = 4.0;
+
+let pngViewerContainer; // Будет инициализирован при DOMContentLoaded
+
+// Функция для обновления трансформации (масштаб и смещение)
+const updateTransform = () => {
+    if (pngViewerContainer) {
+        pngViewerContainer.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+    }
+};
+
+// Вычисление расстояния между двумя точками касания
+const getDistance = (touch1, touch2) => {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+};
+
+// Обработчик начала касания
+const handleTouchStart = (event) => {
+    const touches = event.touches;
+    if (touches.length === 2) {
+        isPinching = true;
+        startDistance = getDistance(touches[0], touches[1]);
+        lastScale = currentScale; // Запоминаем текущий масштаб
+        
+        // Отменяем стандартное поведение, чтобы предотвратить прокрутку/зум браузера
+        event.preventDefault(); 
+    } else if (touches.length === 1 && currentScale > 1.0) { // Только для панорамирования при увеличении
+        isDragging = true;
+        lastX = touches[0].clientX;
+        lastY = touches[0].clientY;
+        startTranslateX = translateX;
+        startTranslateY = translateY;
+        event.preventDefault(); // Отменяем стандартное поведение
+    }
+};
+
+// Обработчик движения касания
+const handleTouchMove = (event) => {
+    const touches = event.touches;
+    if (isPinching && touches.length === 2) {
+        const currentDistance = getDistance(touches[0], touches[1]);
+        const scaleFactor = currentDistance / startDistance;
+        let newScale = lastScale * scaleFactor;
+
+        // Ограничиваем масштаб
+        newScale = Math.max(minScale, Math.min(maxScale, newScale));
+        currentScale = newScale;
+
+        // Также попробуем центрировать зум на средней точке между пальцами
+        // Это более сложная часть, требующая смещения центра трансформации
+        // Для простоты пока просто масштабируем, а панорамирование отдельным движением
+        updateTransform();
+        event.preventDefault();
+
+    } else if (isDragging && touches.length === 1) {
+        const dx = touches[0].clientX - lastX;
+        const dy = touches[0].clientY - lastY;
+        translateX = startTranslateX + dx;
+        translateY = startTranslateY + dy;
+        updateTransform();
+        event.preventDefault();
+    }
+};
+
+// Обработчик окончания касания
+const handleTouchEnd = () => {
+    isPinching = false;
+    isDragging = false;
+    // При отпускании пальцев можно "привязать" изображение к границам, если оно вышло за них
+    // (опционально, для более продвинутой реализации)
+};
+
+
+// Функция для загрузки и отображения всех PNG изображений
+const loadAllPngs = () => {
+    if (pngViewerContainer) {
+        pngViewerContainer.innerHTML = ''; // Очищаем контейнер
+        currentScale = 1.0; // Сбрасываем масштаб при каждой новой загрузке
+        translateX = 0;
+        translateY = 0;
+        updateTransform(); // Применяем сброс
+
+        if (schedulePngsUrls && schedulePngsUrls.length > 0) {
+            schedulePngsUrls.forEach((url, index) => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = `Расписание - Страница ${index + 1}`;
+                img.classList.add('schedule-png-image'); // Добавляем класс для стилизации
+                pngViewerContainer.appendChild(img);
+            });
+        } else {
+            pngViewerContainer.innerHTML = '<p>Изображения расписания отсутствуют.</p>';
+        }
+    }
+};
+
 
 // Функция для переключения страниц
-const showPage = (pageId) => {
+const showPage = (pageId, pushState = true) => {
   // Скрываем все страницы
   document.querySelectorAll(".page").forEach((page) => {
     page.classList.remove("active");
@@ -138,39 +228,76 @@ const showPage = (pageId) => {
     targetPage.classList.add("active");
   }
 
+  // Обновляем текущую страницу
+  currentPage = pageId;
+
+  // Если переходим на страницу PDF, загружаем все картинки
+  if (pageId === 'page-pdf') {
+      loadAllPngs(); // Загружаем все PNG изображения
+  }
+
+  // Управление историей браузера
+  if (pushState) {
+    // Добавляем состояние в историю браузера, чтобы работала кнопка "назад"
+    history.pushState({ page: pageId }, "", `#${pageId}`);
+  }
+
   // Управление кнопкой "назад" в Telegram Mini App
-  // Проверяем, поддерживается ли BackButton в текущей версии WebApp
-  if (parseFloat(Telegram.WebApp.version) >= 6.1) {
-    // BackButton was introduced in 6.1
+  // Только если Telegram.WebApp инициализирован
+  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
     if (pageId === "page-main") {
       Telegram.WebApp.BackButton.hide();
     } else {
       Telegram.WebApp.BackButton.show();
+      Telegram.WebApp.BackButton.onClick(() => {
+        // Имитируем нажатие кнопки "назад" в браузере
+        history.back();
+      });
     }
-    // Назначаем обработчик для кнопки "назад" Telegram
-    Telegram.WebApp.BackButton.onClick(() => showPage("page-main"));
+    // Скрываем основную кнопку, если она была показана
+    Telegram.WebApp.MainButton.hide();
   }
-
-  // Устанавливаем цвет заголовка Mini App (верхней полосы)
-  // Проверяем, поддерживается ли setHeaderColor в текущей версии WebApp
-  if (parseFloat(Telegram.WebApp.version) >= 6.1) {
-    // setHeaderColor was introduced in 6.1
-    Telegram.WebApp.setHeaderColor("secondary_bg_color");
-  }
-
-  // Скрываем основную кнопку, если она была показана
-  Telegram.WebApp.MainButton.hide();
 };
+
+// Обработчик события popstate для навигации по истории браузера
+window.onpopstate = (event) => {
+  if (event.state && event.state.page) {
+    showPage(event.state.page, false); // false, чтобы не добавлять новое состояние в историю
+  } else {
+    // Если состояние пустое (например, при первом заходе на страницу и нажатии назад)
+    showPage("page-main", false);
+  }
+};
+
 
 // --- Инициализация приложения при загрузке DOM ---
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Инициализация Telegram WebApp API
-  Telegram.WebApp.ready();
-  applyTelegramTheme();
-  Telegram.WebApp.onEvent("themeChanged", applyTelegramTheme); // Слушаем изменения темы
+  // 1. Инициализация Telegram WebApp API (если доступно)
+  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    // Устанавливаем цвет заголовка Mini App (верхней полосы)
+    if (parseFloat(Telegram.WebApp.version) >= 6.1) {
+      Telegram.WebApp.setHeaderColor("secondary_bg_color");
+    }
+  }
+
+  // Получаем контейнер для PNG изображений
+  pngViewerContainer = document.getElementById('png-viewer-container');
+  // Добавляем обработчики касаний к контейнеру
+  if (pngViewerContainer) {
+    pngViewerContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+    pngViewerContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+    pngViewerContainer.addEventListener('touchend', handleTouchEnd);
+    pngViewerContainer.addEventListener('touchcancel', handleTouchEnd); // На случай отмены касания
+  }
+
+
+  // Изначально добавляем главную страницу в историю
+  history.replaceState({ page: "page-main" }, "", "#page-main");
+
 
   // 2. Изначально показываем главную страницу
-  showPage("page-main");
+  showPage("page-main", false); // false, чтобы не добавлять двойное состояние при загрузке
 
   // 3. Динамически рендерим расписание
   renderSchedule("schedule-list-zis231", scheduleZis231Data);
@@ -183,11 +310,4 @@ document.addEventListener("DOMContentLoaded", () => {
       showPage(targetPageId);
     });
   });
-
-  const openPdfButton = document.getElementById("open-pdf-button");
-  if (openPdfButton) {
-    openPdfButton.addEventListener("click", () => {
-      Telegram.WebApp.openLink(pdf);
-    });
-  }
 });
