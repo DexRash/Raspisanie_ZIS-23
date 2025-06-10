@@ -188,23 +188,26 @@ h3 {
 
 /* --- PNG List Styles --- */
 .png-list-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
     padding: 10px 0;
 }
 
 .png-list-item {
     width: 100%;
+    max-width: 400px; /* Ограничение ширины для больших экранов */
     height: auto;
     border-radius: 8px;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: 1px solid var(--tg-theme-hint-color);
+    display: block;
 }
 
 .png-list-item:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
@@ -223,60 +226,20 @@ h3 {
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .image-viewer-content {
     max-width: 95%;
     max-height: 95%;
     object-fit: contain;
-    cursor: grab;
     transition: transform 0.2s ease-out;
     user-select: none;
     -webkit-user-select: none;
+    touch-action: none; /* Важно для кастомных жестов */
+    cursor: grab;
 }
 
 .image-viewer-content.zoomed {
     cursor: grabbing;
 }
-
-
-.close-viewer-btn, .prev-viewer-btn, .next-viewer-btn {
-    position: absolute;
-    color: white;
-    font-size: 40px;
-    font-weight: bold;
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
-    transition: background-color 0.2s;
-    padding: 0 15px;
-    background-color: rgba(0,0,0,0.3);
-}
-
-.close-viewer-btn {
-    top: 15px;
-    right: 35px;
-    font-size: 50px;
-    background: none;
-}
-
-.prev-viewer-btn, .next-viewer-btn {
-    top: 50%;
-    transform: translateY(-50%);
-    border-radius: 5px;
-}
-
-.prev-viewer-btn {
-    left: 15px;
-}
-
-.next-viewer-btn {
-    right: 15px;
-}
-
-.close-viewer-btn:hover,
-.prev-viewer-btn:hover,
-.next-viewer-btn:hover {
-    background-color: rgba(0,0,0,0.6);
-}
-
