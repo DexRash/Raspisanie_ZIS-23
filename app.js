@@ -108,9 +108,9 @@ let isPinching = false;
 let isDragging = false;
 let isSingleTouch = false;
 
-// Fixed min/max scale values
-const MIN_SCALE = 1.0; // Can't zoom out smaller than 100%
-const MAX_SCALE = 3.0; // Max zoom level (e.g., 3x original size, adjust as needed)
+// Dynamic min/max scale values will be calculated in loadAllPngs
+let calculatedMinScale = 1.0; 
+const FIXED_MAX_ZOOM_MULTIPLIER = 3.0; // Например, можно увеличить до 3-х раз от начального размера
 
 let pngViewerContainer;
 
@@ -121,7 +121,6 @@ const updateTransform = () => {
         const containerHeight = pngViewerContainer.clientHeight;
         
         // Get the actual scrollable width and height of the content before scaling
-        // offsetWidth/offsetHeight includes padding and border
         const contentWidth = pngViewerContainer.scrollWidth;
         const contentHeight = pngViewerContainer.scrollHeight;
 
@@ -129,22 +128,21 @@ const updateTransform = () => {
         const scaledContentHeight = contentHeight * currentScale;
 
         // Calculate boundaries for translation (panning)
-        let maxX = Math.max(0, scaledContentWidth - containerWidth) / 2;
-        let minX = -maxX;
-        // If scaled content is smaller than container, center it
-        if (scaledContentWidth < containerWidth) {
+        // Adjust bounds based on the difference between scaled content and container
+        let boundsX = Math.max(0, scaledContentWidth - containerWidth) / 2;
+        let boundsY = Math.max(0, scaledContentHeight - containerHeight) / 2;
+
+        // If content is smaller than container, center it
+        if (scaledContentWidth <= containerWidth) {
             translateX = (containerWidth - scaledContentWidth) / 2;
         } else {
-            translateX = Math.max(-maxX, Math.min(maxX, translateX));
+            translateX = Math.max(-boundsX, Math.min(boundsX, translateX));
         }
 
-        let maxY = Math.max(0, scaledContentHeight - containerHeight) / 2;
-        let minY = -maxY;
-        // If scaled content is smaller than container, center it
-        if (scaledContentHeight < containerHeight) {
+        if (scaledContentHeight <= containerHeight) {
             translateY = (containerHeight - scaledContentHeight) / 2;
         } else {
-            translateY = Math.max(-maxY, Math.min(maxY, translateY));
+            translateY = Math.max(-boundsY, Math.min(boundsY, translateY));
         }
 
         // Apply transformation
@@ -168,22 +166,21 @@ const handleTouchStart = (event) => {
         startDistance = getDistance(touches[0], touches[1]);
         lastScale = currentScale;
         
-        // Get initial mid-point for zoom origin
         lastX = (touches[0].clientX + touches[1].clientX) / 2;
         lastY = (touches[0].clientY + touches[1].clientY) / 2;
 
         startTranslateX = translateX;
         startTranslateY = translateY;
         
-        event.preventDefault(); // Prevent default browser zoom/scroll
-    } else if (touches.length === 1 && currentScale > MIN_SCALE) { // Only allow dragging if zoomed in
+        event.preventDefault(); 
+    } else if (touches.length === 1 && currentScale > calculatedMinScale) { // Only allow dragging if zoomed in past min scale
         isDragging = true;
         isSingleTouch = true;
         lastX = touches[0].clientX;
         lastY = touches[0].clientY;
         startTranslateX = translateX;
         startTranslateY = translateY;
-        event.preventDefault(); // Prevent default browser scroll
+        event.preventDefault(); 
     }
 };
 
@@ -195,18 +192,20 @@ const handleTouchMove = (event) => {
         const scaleFactor = currentDistance / startDistance;
         let newScale = lastScale * scaleFactor;
 
-        // Apply scale limits
-        newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+        // Apply scale limits using dynamically calculated minScale
+        const maxScale = calculatedMinScale * FIXED_MAX_ZOOM_MULTIPLIER;
+        newScale = Math.max(calculatedMinScale, Math.min(maxScale, newScale));
         
         // Calculate new translation to keep the zoom origin centered
         const containerRect = pngViewerContainer.getBoundingClientRect();
-        const zoomPointX = (lastX - containerRect.left - startTranslateX) / lastScale;
-        const zoomPointY = (lastY - containerRect.top - startTranslateY) / lastScale;
-
-        translateX = startTranslateX + (lastX - (touches[0].clientX + touches[1].clientX) / 2) - (zoomPointX * (newScale - lastScale));
-        translateY = startTranslateY + (lastY - (touches[0].clientY + touches[1].clientY) / 2) - (zoomPointY * (newScale - lastScale));
+        // Adjust zoom point relative to current translated and scaled state
+        const zoomPointX = (lastX - containerRect.left - translateX) / currentScale;
+        const zoomPointY = (lastY - containerRect.top - translateY) / currentScale;
         
-        currentScale = newScale;
+        translateX = lastX - containerRect.left - (zoomPointX * newScale);
+        translateY = lastY - containerRect.top - (zoomPointY * newScale);
+        
+        currentScale = newScale; // Update currentScale before updateTransform
         updateTransform();
         event.preventDefault();
 
@@ -237,43 +236,68 @@ const handleTouchEnd = (event) => {
 const loadAllPngs = () => {
     if (pngViewerContainer) {
         pngViewerContainer.innerHTML = ''; // Clear container
-        currentScale = MIN_SCALE; // Reset scale to minimum (100% width)
+        currentScale = 1.0; // Reset scale for initial loading
         translateX = 0;
         translateY = 0;
         
-        // Use a Promise.all to ensure all images are loaded before calculating initial scale
         const imageLoadPromises = schedulePngsUrls.map((url) => {
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.src = url;
-                img.alt = `Расписание - Страница`; // Removed index for generic alt
+                img.alt = `Расписание - Страница`; 
                 img.classList.add('schedule-png-image');
+                
+                // Temporarily apply base styles to get initial rendered size
+                // This is crucial to get the "fitted to container" size
+                img.style.maxWidth = '100%'; 
+                img.style.height = 'auto';
+                img.style.display = 'block';
+
                 img.onload = () => {
-                    pngViewerContainer.appendChild(img); // Append after load to get correct dimensions
-                    resolve();
+                    pngViewerContainer.appendChild(img); 
+                    resolve(img); // Resolve with the image element itself
                 };
                 img.onerror = () => {
                     console.error(`Ошибка загрузки изображения: ${url}`);
-                    // Optionally append a placeholder or error message
                     const errorDiv = document.createElement('div');
                     errorDiv.textContent = `Не удалось загрузить изображение: ${url}`;
                     errorDiv.style.color = 'red';
                     pngViewerContainer.appendChild(errorDiv);
-                    resolve(); // Resolve even on error to not block Promise.all
+                    resolve(null); // Resolve with null on error
                 };
             });
         });
 
-        Promise.all(imageLoadPromises).then(() => {
-            // After all images are appended and rendered, calculate initial scale
-            // The initial scale will fit the images to the container width,
-            // which is effectively `MIN_SCALE` (1.0).
-            // No need to explicitly calculate `minScale` based on `originalImageWidth` here
-            // because `max-width: 100%` in CSS already handles initial fitting.
-            // We just ensure currentScale starts at MIN_SCALE.
+        Promise.all(imageLoadPromises).then((images) => {
+            // Find the widest rendered image to determine the true initial 100% scale
+            let widestRenderedWidth = 0;
+            images.forEach(img => {
+                if (img && img.offsetWidth > widestRenderedWidth) {
+                    widestRenderedWidth = img.offsetWidth;
+                }
+            });
+            
+            if (widestRenderedWidth > 0) {
+                // Calculate initial min scale based on how much the widest image was shrunk
+                // pngViewerContainer.clientWidth is the current visible width of the container
+                // widestRenderedWidth is the width the image *actually* takes up after CSS max-width: 100%
+                calculatedMinScale = pngViewerContainer.clientWidth / widestRenderedWidth;
+                
+                // Ensure calculatedMinScale is not greater than 1.0 (i.e., not naturally stretched)
+                if (calculatedMinScale > 1.0) {
+                    calculatedMinScale = 1.0; // If container is wider than actual image, start at 1.0 scale
+                }
+            } else {
+                calculatedMinScale = 1.0; // Fallback if no images loaded or invalid dimensions
+            }
+
+            currentScale = calculatedMinScale; // Set initial scale to this calculated minimum
             updateTransform(); // Apply initial transform
         }).catch((error) => {
             console.error("Ошибка при загрузке всех изображений:", error);
+            calculatedMinScale = 1.0; // Ensure fallback
+            currentScale = calculatedMinScale;
+            updateTransform();
         });
 
     }
@@ -341,8 +365,11 @@ document.addEventListener("DOMContentLoaded", () => {
     pngViewerContainer.addEventListener('touchcancel', handleTouchEnd); 
   }
 
+  // Set initial state for history
   history.replaceState({ page: "page-main" }, "", "#page-main");
-  showPage("page-main", false);
+  // Show initial page
+  showPage("page-main", false); // false, чтобы не добавлять двойное состояние при загрузке
+
   renderSchedule("schedule-list-zis231", scheduleZis231Data);
   renderSchedule("schedule-list-zis232", scheduleZis232Data);
 
@@ -352,7 +379,9 @@ document.addEventListener("DOMContentLoaded", () => {
       showPage(targetPageId);
     });
   });
-
-  // Removed resize listener, as the scale limits are now fixed.
-  // The initial `max-width: 100%` will handle initial fitting.
+  
+  // No resize listener here, as the scale limits are now dynamic based on content fitting
+  // and the container width at load time. If the container changes width AFTER loading,
+  // the minScale won't re-adjust, but the user can still zoom.
+  // For simplicity, we assume the container width is stable after initial load.
 });
