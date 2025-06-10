@@ -160,7 +160,7 @@ h3 {
   grid-template-columns: max-content 1fr 150px;
   gap: 10px;
   background-color: var(--tg-theme-bg-color);
-  border-radius: 8 巴;
+  border-radius: 8px;
   padding: 10px;
   margin-bottom: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -243,10 +243,10 @@ h3 {
   filter: brightness(1.2);
 }
 
-/* PNG Viewer Styles for Pinch-to-Zoom */
+/* PNG Viewer Styles */
 .png-viewer-container {
   flex-grow: 1;
-  overflow: hidden; /* Важно, чтобы содержимое обрезалось, а прокрутка контролировалась через JS */
+  overflow: auto; /* Позволяет прокручивать изображение внутри контейнера */
   display: flex;
   flex-direction: column; /* Изображения будут отображаться друг под другом */
   align-items: center; /* Центрируем изображения по горизонтали */
@@ -254,17 +254,14 @@ h3 {
   box-sizing: border-box;
   background-color: var(--tg-theme-secondary-bg-color);
   border-radius: 8px;
-  /* Для трансформаций */
-  position: relative; /* Необходимо для правильного позиционирования трансформированного содержимого */
-  transform-origin: 0 0; /* Точка трансформации: верхний левый угол */
-  transition: transform 0.05s ease-out; /* Более плавное изменение масштаба/позиции */
-  touch-action: none; /* Отключаем стандартный зум браузера и прокрутку для этого элемента */
+  /* УДАЛЕНЫ стили для трансформаций и touch-action */
 }
 
 .png-viewer-container img {
-  max-width: 100%; /* Изображение изначально вписывается по ширине контейнера */
+  max-width: 100%; /* Изображение будет всегда вписываться по ширине контейнера */
   height: auto; /* Сохраняем пропорции */
   display: block;
+  margin-bottom: 10px; /* Отступ между изображениями */
   user-select: none; /* Запрещаем выделение текста на изображениях */
   -webkit-user-drag: none; /* Запрещаем перетаскивание изображений */
 }
