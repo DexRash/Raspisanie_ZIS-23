@@ -1,35 +1,34 @@
 document.addEventListener("DOMContentLoaded", () => {
     const tg = window.Telegram.WebApp;
 
-    const appState = {
-        currentPage: "page-main",
-        imageViewer: {
-            isOpen: false,
-            scale: 1,
-            isDragging: false,
-            startX: 0,
-            startY: 0,
-            translateX: 0,
-            translateY: 0,
-            initialPinchDistance: null,
-        },
+    const viewerState = {
+        isOpen: false,
+        scale: 1,
+        isDragging: false,
+        isPinching: false,
+        startX: 0,
+        startY: 0,
+        translateX: 0,
+        translateY: 0,
+        initialPinchDistance: null,
     };
 
     const modal = document.getElementById("image-viewer-modal");
     const modalImg = document.getElementById("image-viewer-content");
+    let currentPage = "page-main";
 
     function applyTelegramTheme() {
-        document.body.style.backgroundColor = tg.themeParams.bg_color;
-        document.body.style.color = tg.themeParams.text_color;
+        document.body.style.backgroundColor = tg.themeParams.bg_color || '#ffffff';
+        document.body.style.color = tg.themeParams.text_color || '#000000';
         
         const style = document.documentElement.style;
-        style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color);
-        style.setProperty('--tg-theme-text-color', tg.themeParams.text_color);
-        style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color);
-        style.setProperty('--tg-theme-link-color', tg.themeParams.link_color);
-        style.setProperty('--tg-theme-button-color', tg.themeParams.button_color);
-        style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color);
-        style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color);
+        style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#ffffff');
+        style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#000000');
+        style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color || '#999999');
+        style.setProperty('--tg-theme-link-color', tg.themeParams.link_color || '#0000ff');
+        style.setProperty('--tg-theme-button-color', tg.themeParams.button_color || '#0088cc');
+        style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color || '#ffffff');
+        style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#f0f0f0');
     }
 
     function showPage(pageId, pushState = true) {
@@ -39,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
             targetPage.classList.add("active");
         }
 
-        appState.currentPage = pageId;
+        currentPage = pageId;
 
         if (pushState) {
             history.pushState({ page: pageId }, "", `#${pageId}`);
@@ -113,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function openImageViewer(imageUrl) {
-        appState.imageViewer.isOpen = true;
+        viewerState.isOpen = true;
         modalImg.src = imageUrl;
         modal.style.display = "flex";
         tg.BackButton.hide();
@@ -121,63 +120,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function closeImageViewer() {
         modal.style.display = "none";
-        appState.imageViewer.isOpen = false;
+        viewerState.isOpen = false;
         resetImageViewerState();
-        if (appState.currentPage !== 'page-main') {
+        if (currentPage !== 'page-main') {
             tg.BackButton.show();
         }
     }
 
     function resetImageViewerState() {
-        const viewerState = appState.imageViewer;
         viewerState.scale = 1;
         viewerState.translateX = 0;
         viewerState.translateY = 0;
         viewerState.isDragging = false;
+        viewerState.isPinching = false;
         viewerState.initialPinchDistance = null;
         applyTransform();
         modalImg.classList.remove('zoomed');
     }
     
     function applyTransform() {
-        const viewerState = appState.imageViewer;
         modalImg.style.transform = `translate(${viewerState.translateX}px, ${viewerState.translateY}px) scale(${viewerState.scale})`;
     }
     
     function getDistance(touches) {
-        return Math.hypot(touches[0].pageX - touches[1].pageX, touches[0].pageY - touches[1].pageY);
+        return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
     }
     
     // --- Event Handlers ---
 
     function onPointerDown(e) {
-        if (!appState.imageViewer.isOpen) return;
-        e.preventDefault();
-        const viewerState = appState.imageViewer;
-
-        if (e.pointerType === 'touch' && e.touches.length === 2) {
-            viewerState.initialPinchDistance = getDistance(e.touches);
-        } else if (viewerState.scale > 1) {
+        if (!viewerState.isOpen || viewerState.isPinching) return;
+        
+        if (viewerState.scale > 1) {
+            e.preventDefault();
             viewerState.isDragging = true;
             viewerState.startX = e.clientX - viewerState.translateX;
             viewerState.startY = e.clientY - viewerState.translateY;
             modalImg.classList.add('zoomed');
         }
     }
-    
-    function onPointerMove(e) {
-        if (!appState.imageViewer.isOpen) return;
-        e.preventDefault();
-        const viewerState = appState.imageViewer;
 
-        if (e.pointerType === 'touch' && e.touches.length === 2 && viewerState.initialPinchDistance) {
-            const newDist = getDistance(e.touches);
-            const scaleFactor = newDist / viewerState.initialPinchDistance;
-            viewerState.scale *= scaleFactor;
-            viewerState.scale = Math.max(1, Math.min(viewerState.scale, 5));
-            viewerState.initialPinchDistance = newDist;
-            applyTransform();
-        } else if (viewerState.isDragging) {
+    function onPointerMove(e) {
+        if (viewerState.isDragging && !viewerState.isPinching) {
+            e.preventDefault();
             viewerState.translateX = e.clientX - viewerState.startX;
             viewerState.translateY = e.clientY - viewerState.startY;
             applyTransform();
@@ -185,34 +170,56 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function onPointerUp(e) {
-        if (!appState.imageViewer.isOpen) return;
-        const viewerState = appState.imageViewer;
         viewerState.isDragging = false;
-        viewerState.initialPinchDistance = null;
-        if (viewerState.scale <= 1) {
-            modalImg.classList.remove('zoomed');
+    }
+
+    function onTouchStart(e) {
+        if (!viewerState.isOpen) return;
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            viewerState.isPinching = true;
+            viewerState.isDragging = false;
+            viewerState.initialPinchDistance = getDistance(e.touches);
         }
     }
-    
-    function onDoubleClick(e) {
-        if (!appState.imageViewer.isOpen) return;
-        const viewerState = appState.imageViewer;
-        if(viewerState.scale > 1) {
-             resetImageViewerState();
-        } else {
-            viewerState.scale = 2.5;
+
+    function onTouchMove(e) {
+        if (viewerState.isPinching && e.touches.length === 2) {
+            e.preventDefault();
+            const newDist = getDistance(e.touches);
+            const scaleFactor = newDist / viewerState.initialPinchDistance;
+            
+            const newScale = Math.max(1, Math.min(viewerState.scale * scaleFactor, 5));
+            
+            viewerState.scale = newScale;
+            viewerState.initialPinchDistance = newDist;
+            
             applyTransform();
-            modalImg.classList.add('zoomed');
+        }
+    }
+
+    function onTouchEnd(e) {
+        if (e.touches.length < 2) {
+            viewerState.isPinching = false;
+            viewerState.initialPinchDistance = null;
+             if (viewerState.scale <= 1) {
+                resetImageViewerState();
+            }
         }
     }
     
     // --- Initialization ---
 
-    tg.ready();
-    tg.expand();
-    applyTelegramTheme();
-    tg.onEvent("themeChanged", applyTelegramTheme);
-    tg.onEvent("backButtonClicked", () => history.back());
+    try {
+        tg.ready();
+        tg.expand();
+        applyTelegramTheme();
+        tg.onEvent("themeChanged", applyTelegramTheme);
+        tg.onEvent("backButtonClicked", () => history.back());
+    } catch(e) {
+        console.error("Telegram WebApp API not available.", e);
+    }
+
 
     history.replaceState({ page: "page-main" }, "", "#page-main");
     showPage("page-main", false);
@@ -228,10 +235,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     window.onpopstate = (event) => {
-        const page = (event.state && event.state.page) ? event.state.page : "page-main";
-        if (appState.imageViewer.isOpen) {
+        if (viewerState.isOpen) {
              closeImageViewer();
         }
+        const page = (event.state && event.state.page) ? event.state.page : "page-main";
         showPage(page, false);
     };
 
@@ -240,21 +247,20 @@ document.addEventListener("DOMContentLoaded", () => {
             closeImageViewer();
         }
     });
-    
-    // Listeners for both Mouse and Touch
-    modalImg.addEventListener('mousedown', onPointerDown);
-    modalImg.addEventListener('mousemove', onPointerMove);
-    modal.addEventListener('mouseup', onPointerUp);
-    modal.addEventListener('mouseleave', onPointerUp);
-    
-    modalImg.addEventListener('touchstart', onPointerDown, { passive: false });
-    modalImg.addEventListener('touchmove', onPointerMove, { passive: false });
-    modalImg.addEventListener('touchend', onPointerUp);
 
-    modalImg.addEventListener('dblclick', onDoubleClick);
+    modalImg.addEventListener('pointerdown', onPointerDown);
+    modalImg.addEventListener('pointermove', onPointerMove);
+    modalImg.addEventListener('pointerup', onPointerUp);
+    modalImg.addEventListener('pointercancel', onPointerUp);
+    modalImg.addEventListener('pointerleave', onPointerUp);
+
+    modalImg.addEventListener('touchstart', onTouchStart, { passive: false });
+    modalImg.addEventListener('touchmove', onTouchMove, { passive: false });
+    modalImg.addEventListener('touchend', onTouchEnd);
+    modalImg.addEventListener('touchcancel', onTouchEnd);
 
     document.addEventListener('keydown', (e) => {
-        if (appState.imageViewer.isOpen && e.key === 'Escape') {
+        if (viewerState.isOpen && e.key === 'Escape') {
              closeImageViewer();
         }
     });
