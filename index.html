@@ -10,7 +10,7 @@
     <script src="./data.js"></script>
     <script src="./app.js"></script>
   </head>
-  <body>
+  <body class="telegram-light">
     <div id="app-container">
       <div id="page-main" class="page active">
         <div class="main-title">
@@ -20,10 +20,7 @@
         <div class="main-buttons">
           <button class="main-button" data-target-page="zis231">Расписание ЗИС-231</button>
           <button class="main-button" data-target-page="zis232">Расписание ЗИС-232</button>
-          <button class="main-button" id="open-pdf-button">
-            Оригинальное расписание (PDF)
-            <p>(файл загрузится заново, даже если он уже есть на устройстве)</p>
-          </button>
+          <button class="main-button" data-target-page="pdf">Оригинальное расписание (PNG)</button>
         </div>
 
         <div class="main-notice">
@@ -34,15 +31,16 @@
       </div>
 
       <div id="page-zis231" class="page">
-        <h2 id="zis231-title">Расписание группы ЗИС-231</h2>
         <ul class="schedule-list" id="schedule-list-zis231"></ul>
-        <button class="back-button" data-target-page="main">Вернуться на главную</button>
       </div>
 
       <div id="page-zis232" class="page">
-        <h2 id="zis232-title">Расписание группы ЗИС-232</h2>
         <ul class="schedule-list" id="schedule-list-zis232"></ul>
-        <button class="back-button" data-target-page="main">Вернуться на главную</button>
+      </div>
+
+      <div id="page-pdf" class="page">
+        <div class="png-viewer-container" id="png-viewer-container">
+            </div>
       </div>
     </div>
   </body>
