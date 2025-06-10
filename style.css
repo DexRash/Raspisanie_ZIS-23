@@ -246,30 +246,30 @@ h3 {
 /* PNG Viewer Styles */
 .png-viewer-container {
   flex-grow: 1;
-  overflow: hidden; /* Controlled by JS based on device type */
+  overflow: hidden; /* Important to clip content when scaled/panned */
   display: flex;
-  flex-direction: column; 
-  align-items: center; 
+  flex-direction: column; /* Images will stack vertically */
+  align-items: center; /* Center images horizontally within the container */
   padding: 10px;
   box-sizing: border-box;
   background-color: var(--tg-theme-secondary-bg-color);
   border-radius: 8px;
-  position: relative; 
-  transform-origin: 0 0; 
-  transition: transform 0.05s ease-out; 
-  touch-action: none; /* Controlled by JS based on device type */
+  position: relative; /* Essential for transform to work correctly relative to its position */
+  transform-origin: 0 0; /* Top-left origin for transforms */
+  transition: transform 0.05s ease-out; /* Smooth transitions */
+  touch-action: none; /* Disable default browser touch actions (zoom, scroll) */
 }
 
 .png-viewer-container img {
-  max-width: 100%; 
-  height: auto; 
+  max-width: 100%; /* Image initially fits container width */
+  height: auto; /* Maintain aspect ratio */
   display: block;
-  margin-bottom: 10px; 
-  user-select: none; 
-  -webkit-user-drag: none; 
+  margin-bottom: 10px; /* Space between images */
+  user-select: none; /* Prevent text selection on images */
+  -webkit-user-drag: none; /* Prevent image dragging */
 }
 
-/* Убираем нижний отступ у последней картинки */
+/* Remove bottom margin from the last image */
 .png-viewer-container img:last-child {
     margin-bottom: 0;
 }
