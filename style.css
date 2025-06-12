@@ -198,6 +198,7 @@ h3 {
     width: 100%;
     max-width: 500px; /* Ограничение ширины для больших экранов */
     height: auto;
+    margin: 0 15p;
     border-radius: 8px;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
