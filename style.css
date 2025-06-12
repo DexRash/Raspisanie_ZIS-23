@@ -86,6 +86,7 @@ h3 {
     display: block;
     width: 100%;
     padding: 15px 20px;
+    margin: 10px;
     background-color: var(--tg-theme-button-color);
     color: var(--tg-theme-button-text-color);
     border: none;
