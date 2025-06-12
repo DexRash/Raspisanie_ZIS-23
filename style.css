@@ -197,7 +197,7 @@ h3 {
 
 .png-list-item {
     width: 100%;
-    max-width: 400px; /* Ограничение ширины для больших экранов */
+    max-width: 500px; /* Ограничение ширины для больших экранов */
     height: auto;
     border-radius: 8px;
     cursor: pointer;
