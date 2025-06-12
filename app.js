@@ -12,13 +12,11 @@ document.addEventListener("DOMContentLoaded", () => {
         translateX: 0,
         translateY: 0,
         initialPinchDistance: null,
-        swipeStartX: 0,
-        swipeIsActive: false,
     };
 
     const modal = document.getElementById("image-viewer-modal");
     const modalImg = document.getElementById("image-viewer-content");
-    let currentPage = "page-main";
+    let currentPageId = "page-main";
 
     function applyTelegramTheme() {
         document.body.style.backgroundColor = tg.themeParams.bg_color || '#ffffff';
@@ -34,16 +32,18 @@ document.addEventListener("DOMContentLoaded", () => {
         style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#f0f0f0');
     }
 
-    function showPage(pageId, pushState = true) {
+    function showPage(pageId, push = true) {
         document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
         const targetPage = document.getElementById(pageId);
         if (targetPage) {
             targetPage.classList.add("active");
         }
-        currentPage = pageId;
-        if (pushState) {
-            history.pushState({ page: pageId }, "", `#${pageId}`);
+        currentPageId = pageId;
+
+        if (push) {
+            history.pushState({ page: pageId }, '', `#${pageId}`);
         }
+        
         if (pageId === "page-main") {
             tg.BackButton.hide();
         } else {
@@ -106,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function openImageViewer(imageUrl) {
+        history.pushState({ modal: true }, "", "#viewer");
         viewerState.isOpen = true;
         modal.style.display = "flex";
         tg.BackButton.show();
@@ -115,30 +116,27 @@ document.addEventListener("DOMContentLoaded", () => {
         modalImg.onload = () => {
             const displayedWidth = modalImg.offsetWidth;
             const naturalWidth = modalImg.naturalWidth;
-            if (displayedWidth > 0 && naturalWidth > 0) {
-                viewerState.maxScale = Math.max(1, naturalWidth / displayedWidth);
-            } else {
-                viewerState.maxScale = 4; // Fallback
-            }
+            viewerState.maxScale = (displayedWidth > 0 && naturalWidth > 0) ? Math.max(1, naturalWidth / displayedWidth) : 4;
         };
     }
 
     function closeImageViewer() {
-        modal.style.display = "none";
         viewerState.isOpen = false;
+        modal.style.display = "none";
         resetImageViewerState();
-        if (currentPage === 'page-main') {
+        // Check if the current page should have a back button and update its visibility
+        if (currentPageId === 'page-main') {
             tg.BackButton.hide();
+        } else {
+            tg.BackButton.show();
         }
     }
 
     function resetImageViewerState() {
-        viewerState.scale = 1;
-        viewerState.translateX = 0;
-        viewerState.translateY = 0;
-        viewerState.isDragging = false;
-        viewerState.isPinching = false;
-        viewerState.initialPinchDistance = null;
+        Object.assign(viewerState, {
+            scale: 1, translateX: 0, translateY: 0,
+            isDragging: false, isPinching: false, initialPinchDistance: null
+        });
         applyTransform();
         modalImg.classList.remove('zoomed');
     }
@@ -184,9 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function onPointerUp() {
-        viewerState.isDragging = false;
-    }
+    function onPointerUp() { viewerState.isDragging = false; }
 
     function onTouchStart(e) {
         if (!viewerState.isOpen) return;
@@ -195,9 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
             viewerState.isPinching = true;
             viewerState.isDragging = false;
             viewerState.initialPinchDistance = getDistance(e.touches);
-        } else if (viewerState.scale === 1 && e.touches.length === 1 && e.target === modal) {
-            viewerState.swipeStartX = e.touches[0].clientX;
-            viewerState.swipeIsActive = true;
         }
     }
 
@@ -214,24 +207,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function onTouchEnd(e) {
-        if (e.touches.length < 2) {
-            viewerState.isPinching = false;
-        }
-
-        if (viewerState.swipeIsActive && e.changedTouches.length === 1) {
-            const swipeEndX = e.changedTouches[0].clientX;
-            if (swipeEndX - viewerState.swipeStartX > 100) { // Swipe right to close
-                closeImageViewer();
-            }
-        }
-        viewerState.swipeIsActive = false;
-
-        if (viewerState.scale <= 1) {
-            resetImageViewerState();
-        } else {
-            constrainPan();
-            applyTransform();
-        }
+        if (e.touches.length < 2) viewerState.isPinching = false;
+        if (viewerState.scale <= 1) resetImageViewerState();
+        else { constrainPan(); applyTransform(); }
     }
 
     function onWheel(e) {
@@ -247,25 +225,17 @@ document.addEventListener("DOMContentLoaded", () => {
         viewerState.translateX = mouseX - (mouseX - viewerState.translateX) * (newScale / oldScale);
         viewerState.translateY = mouseY - (mouseY - viewerState.translateY) * (newScale / oldScale);
         viewerState.scale = newScale;
-        if (newScale <= 1) {
-            resetImageViewerState();
-        } else {
-            constrainPan();
-            applyTransform();
-            modalImg.classList.add('zoomed');
-        }
+        if (newScale <= 1) resetImageViewerState();
+        else { constrainPan(); applyTransform(); modalImg.classList.add('zoomed'); }
     }
 
     function onDoubleClick(e) {
         if (!viewerState.isOpen) return;
         e.preventDefault();
-        if (viewerState.scale > 1) {
-            resetImageViewerState();
-        } else {
+        if (viewerState.scale > 1) resetImageViewerState();
+        else {
             viewerState.scale = viewerState.maxScale;
-            constrainPan();
-            applyTransform();
-            modalImg.classList.add('zoomed');
+            constrainPan(); applyTransform(); modalImg.classList.add('zoomed');
         }
     }
     
@@ -273,13 +243,8 @@ document.addEventListener("DOMContentLoaded", () => {
         tg.ready();
         tg.expand();
         applyTelegramTheme();
-        tg.onEvent("backButtonClicked", () => {
-            if (viewerState.isOpen) {
-                closeImageViewer();
-            } else {
-                history.back();
-            }
-        });
+        tg.onEvent("themeChanged", applyTelegramTheme);
+        tg.onEvent("backButtonClicked", () => history.back());
     } catch(e) {
         console.error("Telegram WebApp API not available.", e);
     }
@@ -299,18 +264,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.onpopstate = (event) => {
         if (viewerState.isOpen) {
-             closeImageViewer();
+            closeImageViewer();
+        } else if (event.state && event.state.page) {
+            showPage(event.state.page, false);
+        } else {
+            showPage("page-main", false);
         }
-        const page = (event.state && event.state.page) ? event.state.page : "page-main";
-        showPage(page, false);
     };
 
     modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeImageViewer();
-        }
+        if (e.target === modal) history.back();
     });
-
     modal.addEventListener('wheel', onWheel, { passive: false });
     modalImg.addEventListener('dblclick', onDoubleClick);
     modalImg.addEventListener('pointerdown', onPointerDown);
@@ -318,18 +282,12 @@ document.addEventListener("DOMContentLoaded", () => {
     modalImg.addEventListener('pointerup', onPointerUp);
     modalImg.addEventListener('pointercancel', onPointerUp);
     modalImg.addEventListener('pointerleave', onPointerUp);
-    // Add separate listeners for swipe on modal
-    modal.addEventListener('touchstart', onTouchStart, { passive: false });
-    modal.addEventListener('touchend', onTouchEnd);
-    // Listeners for image interaction
     modalImg.addEventListener('touchstart', onTouchStart, { passive: false });
     modalImg.addEventListener('touchmove', onTouchMove, { passive: false });
     modalImg.addEventListener('touchend', onTouchEnd);
     modalImg.addEventListener('touchcancel', onTouchEnd);
 
     document.addEventListener('keydown', (e) => {
-        if (viewerState.isOpen && e.key === 'Escape') {
-             closeImageViewer();
-        }
+        if (viewerState.isOpen && e.key === 'Escape') history.back();
     });
 });
