@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById("image-viewer-modal");
     const modalImg = document.getElementById("image-viewer-content");
     let currentPageId = "page-main";
+    let lastTapTime = 0;
 
     function applyTelegramTheme() {
         document.body.style.backgroundColor = tg.themeParams.bg_color || '#ffffff';
@@ -39,11 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
             targetPage.classList.add("active");
         }
         currentPageId = pageId;
-
         if (push) {
             history.pushState({ page: pageId }, '', `#${pageId}`);
         }
-        
         if (pageId === "page-main") {
             tg.BackButton.hide();
         } else {
@@ -124,7 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
         viewerState.isOpen = false;
         modal.style.display = "none";
         resetImageViewerState();
-        // Check if the current page should have a back button and update its visibility
         if (currentPageId === 'page-main') {
             tg.BackButton.hide();
         } else {
@@ -156,7 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const containerHeight = modal.clientHeight;
         const boundaryX = Math.max(0, (imgWidthScaled - containerWidth) / 2);
         const boundaryY = Math.max(0, (imgHeightScaled - containerHeight) / 2);
-
         viewerState.translateX = Math.max(-boundaryX, Math.min(boundaryX, viewerState.translateX));
         viewerState.translateY = Math.max(-boundaryY, Math.min(boundaryY, viewerState.translateY));
     }
@@ -229,14 +226,26 @@ document.addEventListener("DOMContentLoaded", () => {
         else { constrainPan(); applyTransform(); modalImg.classList.add('zoomed'); }
     }
 
-    function onDoubleClick(e) {
-        if (!viewerState.isOpen) return;
-        e.preventDefault();
-        if (viewerState.scale > 1) resetImageViewerState();
-        else {
-            viewerState.scale = viewerState.maxScale;
-            constrainPan(); applyTransform(); modalImg.classList.add('zoomed');
+    function handleImageTap(e) {
+        if (!viewerState.isOpen || viewerState.isDragging || viewerState.isPinching) return;
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTapTime;
+        if (tapLength < 300 && tapLength > 0) {
+            // Double-tap
+            e.preventDefault();
+            if (viewerState.scale > 1) {
+                resetImageViewerState();
+            } else {
+                viewerState.scale = viewerState.maxScale;
+                constrainPan();
+                applyTransform();
+                modalImg.classList.add('zoomed');
+            }
+            lastTapTime = 0;
+        } else {
+            // Single-tap - do nothing to the image
         }
+        lastTapTime = currentTime;
     }
     
     try {
@@ -276,12 +285,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target === modal) history.back();
     });
     modal.addEventListener('wheel', onWheel, { passive: false });
-    modalImg.addEventListener('dblclick', onDoubleClick);
+    
+    // Custom tap/click handler for the image
+    modalImg.addEventListener('click', handleImageTap);
+
+    // Pointer events for dragging
     modalImg.addEventListener('pointerdown', onPointerDown);
     modalImg.addEventListener('pointermove', onPointerMove);
     modalImg.addEventListener('pointerup', onPointerUp);
     modalImg.addEventListener('pointercancel', onPointerUp);
     modalImg.addEventListener('pointerleave', onPointerUp);
+
+    // Touch events for pinching
     modalImg.addEventListener('touchstart', onTouchStart, { passive: false });
     modalImg.addEventListener('touchmove', onTouchMove, { passive: false });
     modalImg.addEventListener('touchend', onTouchEnd);
