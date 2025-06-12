@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const viewerState = {
         isOpen: false,
         scale: 1,
-        maxScale: 4, // Default max scale, will be updated dynamically
+        maxScale: 4, 
         isDragging: false,
         isPinching: false,
         startX: 0,
@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
         translateX: 0,
         translateY: 0,
         initialPinchDistance: null,
+        swipeStartX: 0,
+        swipeIsActive: false,
     };
 
     const modal = document.getElementById("image-viewer-modal");
@@ -106,9 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
     function openImageViewer(imageUrl) {
         viewerState.isOpen = true;
         modal.style.display = "flex";
-        tg.BackButton.hide();
+        tg.BackButton.show();
         
-        // Reset src and load new image to calculate maxScale
         modalImg.src = "";
         modalImg.src = imageUrl;
         modalImg.onload = () => {
@@ -126,8 +127,8 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.style.display = "none";
         viewerState.isOpen = false;
         resetImageViewerState();
-        if (currentPage !== 'page-main') {
-            tg.BackButton.show();
+        if (currentPage === 'page-main') {
+            tg.BackButton.hide();
         }
     }
 
@@ -194,6 +195,9 @@ document.addEventListener("DOMContentLoaded", () => {
             viewerState.isPinching = true;
             viewerState.isDragging = false;
             viewerState.initialPinchDistance = getDistance(e.touches);
+        } else if (viewerState.scale === 1 && e.touches.length === 1 && e.target === modal) {
+            viewerState.swipeStartX = e.touches[0].clientX;
+            viewerState.swipeIsActive = true;
         }
     }
 
@@ -202,10 +206,8 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             const newDist = getDistance(e.touches);
             const scaleFactor = newDist / viewerState.initialPinchDistance;
-            
             viewerState.scale = Math.max(1, Math.min(viewerState.scale * scaleFactor, viewerState.maxScale));
             viewerState.initialPinchDistance = newDist;
-            
             constrainPan();
             applyTransform();
         }
@@ -214,33 +216,37 @@ document.addEventListener("DOMContentLoaded", () => {
     function onTouchEnd(e) {
         if (e.touches.length < 2) {
             viewerState.isPinching = false;
-            if (viewerState.scale <= 1) {
-                resetImageViewerState();
-            } else {
-                constrainPan();
-                applyTransform();
+        }
+
+        if (viewerState.swipeIsActive && e.changedTouches.length === 1) {
+            const swipeEndX = e.changedTouches[0].clientX;
+            if (swipeEndX - viewerState.swipeStartX > 100) { // Swipe right to close
+                closeImageViewer();
             }
+        }
+        viewerState.swipeIsActive = false;
+
+        if (viewerState.scale <= 1) {
+            resetImageViewerState();
+        } else {
+            constrainPan();
+            applyTransform();
         }
     }
 
     function onWheel(e) {
         if (!viewerState.isOpen) return;
         e.preventDefault();
-        
         const oldScale = viewerState.scale;
         const delta = e.deltaY > 0 ? -0.1 : 0.1;
         const newScale = Math.max(1, Math.min(oldScale + delta, viewerState.maxScale));
-
         if (newScale === oldScale) return;
-
         const rect = modal.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
-
         viewerState.translateX = mouseX - (mouseX - viewerState.translateX) * (newScale / oldScale);
         viewerState.translateY = mouseY - (mouseY - viewerState.translateY) * (newScale / oldScale);
         viewerState.scale = newScale;
-
         if (newScale <= 1) {
             resetImageViewerState();
         } else {
@@ -267,8 +273,13 @@ document.addEventListener("DOMContentLoaded", () => {
         tg.ready();
         tg.expand();
         applyTelegramTheme();
-        tg.onEvent("themeChanged", applyTelegramTheme);
-        tg.onEvent("backButtonClicked", () => history.back());
+        tg.onEvent("backButtonClicked", () => {
+            if (viewerState.isOpen) {
+                closeImageViewer();
+            } else {
+                history.back();
+            }
+        });
     } catch(e) {
         console.error("Telegram WebApp API not available.", e);
     }
@@ -307,6 +318,10 @@ document.addEventListener("DOMContentLoaded", () => {
     modalImg.addEventListener('pointerup', onPointerUp);
     modalImg.addEventListener('pointercancel', onPointerUp);
     modalImg.addEventListener('pointerleave', onPointerUp);
+    // Add separate listeners for swipe on modal
+    modal.addEventListener('touchstart', onTouchStart, { passive: false });
+    modal.addEventListener('touchend', onTouchEnd);
+    // Listeners for image interaction
     modalImg.addEventListener('touchstart', onTouchStart, { passive: false });
     modalImg.addEventListener('touchmove', onTouchMove, { passive: false });
     modalImg.addEventListener('touchend', onTouchEnd);
