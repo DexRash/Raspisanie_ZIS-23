@@ -23,12 +23,16 @@ body {
 #app-container {
     height: 100%;
     padding: 0px;
-    max-width: 640px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     width: 100%;
     box-sizing: border-box;
+}
+
+#page-main {
+    max-width: 640px;
+    margin: 0 auto;
 }
 
 .page {
@@ -106,9 +110,10 @@ h3 {
 }
 
 .schedule-list {
+    max-width: 640px;
     list-style: none;
     padding: 10px;
-    margin: 0;
+    margin: 0 auto;
 }
 
 .schedule-day-block {
