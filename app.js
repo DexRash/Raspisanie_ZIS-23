@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let dayOfWeek = dateObject.toLocaleDateString("ru-RU", { weekday: "long" });
             dayOfWeek = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
             htmlContent += `<li class="schedule-day-block ${isToday ? "schedule-day-today" : ""}">
-                <div class="schedule-date"><h3>${dayOfWeek}</h3><h3>${date} г.</h3></div>
+                <div class="schedule-date"><h3>${dayOfWeek}</h3><h3>${date}</h3></div>
                 <ul class="schedule-day-list">`;
             if (items.some(item => item.subject)) {
                 items.forEach(item => {
