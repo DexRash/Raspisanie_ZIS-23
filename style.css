@@ -176,7 +176,6 @@ h3 {
 }
 
 .schedule-item-no-subjects {
-    padding: 20px;
     text-align: center;
     color: var(--tg-theme-hint-color);
     font-style: italic;
