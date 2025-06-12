@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const viewerState = {
         isOpen: false,
         scale: 1,
+        maxScale: 4, // Default max scale, will be updated dynamically
         isDragging: false,
         isPinching: false,
         startX: 0,
@@ -104,9 +105,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function openImageViewer(imageUrl) {
         viewerState.isOpen = true;
-        modalImg.src = imageUrl;
         modal.style.display = "flex";
         tg.BackButton.hide();
+        
+        // Reset src and load new image to calculate maxScale
+        modalImg.src = "";
+        modalImg.src = imageUrl;
+        modalImg.onload = () => {
+            const displayedWidth = modalImg.offsetWidth;
+            const naturalWidth = modalImg.naturalWidth;
+            if (displayedWidth > 0 && naturalWidth > 0) {
+                viewerState.maxScale = Math.max(1, naturalWidth / displayedWidth);
+            } else {
+                viewerState.maxScale = 4; // Fallback
+            }
+        };
     }
 
     function closeImageViewer() {
@@ -189,8 +202,10 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             const newDist = getDistance(e.touches);
             const scaleFactor = newDist / viewerState.initialPinchDistance;
-            viewerState.scale *= scaleFactor;
+            
+            viewerState.scale = Math.max(1, Math.min(viewerState.scale * scaleFactor, viewerState.maxScale));
             viewerState.initialPinchDistance = newDist;
+            
             constrainPan();
             applyTransform();
         }
@@ -213,13 +228,10 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         
         const oldScale = viewerState.scale;
-        const delta = e.deltaY > 0 ? -0.2 : 0.2;
-        const newScale = Math.max(1, Math.min(oldScale + delta, 5));
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        const newScale = Math.max(1, Math.min(oldScale + delta, viewerState.maxScale));
 
-        if (newScale <= 1) {
-            resetImageViewerState();
-            return;
-        }
+        if (newScale === oldScale) return;
 
         const rect = modal.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
@@ -229,9 +241,26 @@ document.addEventListener("DOMContentLoaded", () => {
         viewerState.translateY = mouseY - (mouseY - viewerState.translateY) * (newScale / oldScale);
         viewerState.scale = newScale;
 
-        constrainPan();
-        applyTransform();
-        modalImg.classList.add('zoomed');
+        if (newScale <= 1) {
+            resetImageViewerState();
+        } else {
+            constrainPan();
+            applyTransform();
+            modalImg.classList.add('zoomed');
+        }
+    }
+
+    function onDoubleClick(e) {
+        if (!viewerState.isOpen) return;
+        e.preventDefault();
+        if (viewerState.scale > 1) {
+            resetImageViewerState();
+        } else {
+            viewerState.scale = viewerState.maxScale;
+            constrainPan();
+            applyTransform();
+            modalImg.classList.add('zoomed');
+        }
     }
     
     try {
@@ -272,6 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     modal.addEventListener('wheel', onWheel, { passive: false });
+    modalImg.addEventListener('dblclick', onDoubleClick);
     modalImg.addEventListener('pointerdown', onPointerDown);
     modalImg.addEventListener('pointermove', onPointerMove);
     modalImg.addEventListener('pointerup', onPointerUp);
