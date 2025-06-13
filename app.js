@@ -2,28 +2,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const tg = window.Telegram.WebApp;
 
     const viewerState = {
-        isOpen: false,
-        scale: 1,
-        maxScale: 4, 
-        isDragging: false,
-        isPinching: false,
-        startX: 0,
-        startY: 0,
-        translateX: 0,
-        translateY: 0,
-        initialPinchDistance: null,
+        isOpen: false, scale: 1, maxScale: 4, isDragging: false,
+        isPinching: false, startX: 0, startY: 0, translateX: 0,
+        translateY: 0, initialPinchDistance: null,
     };
 
     const modal = document.getElementById("image-viewer-modal");
     const modalImg = document.getElementById("image-viewer-content");
     let currentPageId = "page-main";
-    const initialTitle = "Расписание"; // Начальный заголовок для главной страницы
+    const initialTitle = "Расписание";
     let lastTapTime = 0;
 
     function applyTelegramTheme() {
         document.body.style.backgroundColor = tg.themeParams.bg_color || '#ffffff';
         document.body.style.color = tg.themeParams.text_color || '#000000';
-        
         const style = document.documentElement.style;
         style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#ffffff');
         style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#000000');
@@ -34,26 +26,26 @@ document.addEventListener("DOMContentLoaded", () => {
         style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#f0f0f0');
     }
 
-    /**
-     * Показывает указанную страницу и обновляет заголовок документа.
-     * @param {string} pageId - ID элемента страницы для отображения.
-     * @param {string} title - Новый заголовок для документа.
-     * @param {boolean} push - Управляет добавлением состояния в историю браузера.
-     */
     function showPage(pageId, title, push = true) {
         document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
         const targetPage = document.getElementById(pageId);
         if (targetPage) {
             targetPage.classList.add("active");
+            // Прокрутка страницы вверх при переходе
+            targetPage.scrollTop = 0;
         }
         currentPageId = pageId;
-        document.title = title || initialTitle; // Обновляем заголовок
+        document.title = title || initialTitle;
 
-        if (push) {
-            // Сохраняем pageId и title в истории для корректной работы кнопки "назад"
-            history.pushState({ page: pageId, title: title }, title, `#${pageId}`);
+        // Обновляем текст в "липком" заголовке
+        const headerTitleElement = document.querySelector(`#${pageId} .page-title`);
+        if (headerTitleElement) {
+            headerTitleElement.textContent = title;
         }
 
+        if (push) {
+            history.pushState({ page: pageId, title: title }, title, `#${pageId}`);
+        }
         if (pageId === "page-main") {
             tg.BackButton.hide();
         } else {
@@ -85,16 +77,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 items.forEach(item => {
                     if (!item.subject) return;
                     
-                    // Собираем информацию о паре, фильтруя пустые значения (например, если нет типа)
-                    const infoParts = [item.classroom, item.teacher, item.type].filter(Boolean);
+                    // Собираем информацию, оборачивая тип в span для стилизации
+                    const infoParts = [item.classroom, item.teacher];
+                    if (item.type) {
+                        infoParts.push(`<span class="schedule-item-type">${item.type}</span>`);
+                    }
 
                     htmlContent += `
                         <li class="schedule-item">
                             <div class="schedule-item-time">${item.time.replace(/-/g, '<br>')}</div>
                             <div class="schedule-item-details">
                                 <div class="schedule-item-subject">${item.subject}</div>
-                                <!-- Выводим информацию, объединенную через разделитель -->
-                                <div class="schedule-item-info">${infoParts.join(' &bull; ')}</div>
+                                <div class="schedule-item-info">${infoParts.filter(Boolean).join(' &bull; ')}</div>
                             </div>
                         </li>`;
                 });
@@ -125,7 +119,6 @@ document.addEventListener("DOMContentLoaded", () => {
         viewerState.isOpen = true;
         modal.style.display = "flex";
         tg.BackButton.show();
-        
         modalImg.src = "";
         modalImg.src = imageUrl;
         modalImg.onload = () => {
@@ -261,8 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lastTapTime = currentTime;
     }
     
-    // --- Инициализация приложения ---
-    
+    // --- Инициализация ---
     try {
         tg.ready();
         tg.expand();
@@ -273,20 +265,16 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Telegram WebApp API not available.", e);
     }
 
-    // Установка заголовков на главной странице из data.js
     document.getElementById("session-title").textContent = sessionInfo.title;
     document.getElementById("session-dates").textContent = sessionInfo.dates;
 
-    // Начальная установка состояния истории
     history.replaceState({ page: "page-main", title: initialTitle }, initialTitle, "#page-main");
     showPage("page-main", initialTitle, false);
 
-    // Рендеринг расписаний
     renderSchedule("schedule-list-zis231", scheduleZis231Data);
     renderSchedule("schedule-list-zis232", scheduleZis232Data);
     loadPngList();
 
-    // Назначение обработчиков на кнопки навигации
     document.querySelectorAll("[data-target-page]").forEach(button => {
         button.addEventListener("click", (event) => {
             const targetPageId = `page-${event.currentTarget.dataset.targetPage}`;
@@ -295,25 +283,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Обработка кнопки "назад" в браузере
     window.onpopstate = (event) => {
         if (viewerState.isOpen) {
             closeImageViewer();
         } else if (event.state && event.state.page) {
-            // Восстанавливаем страницу и заголовок из истории
             showPage(event.state.page, event.state.title, false);
         } else {
             showPage("page-main", initialTitle, false);
         }
     };
 
-    // --- Обработчики для модального окна ---
-
     modal.addEventListener('click', (e) => {
         if (e.target === modal) history.back();
     });
     modal.addEventListener('wheel', onWheel, { passive: false });
-    
     modalImg.addEventListener('click', handleImageTap);
     modalImg.addEventListener('pointerdown', onPointerDown);
     modalImg.addEventListener('pointermove', onPointerMove);
@@ -324,7 +307,6 @@ document.addEventListener("DOMContentLoaded", () => {
     modalImg.addEventListener('touchmove', onTouchMove, { passive: false });
     modalImg.addEventListener('touchend', onTouchEnd);
     modalImg.addEventListener('touchcancel', onTouchEnd);
-
     document.addEventListener('keydown', (e) => {
         if (viewerState.isOpen && e.key === 'Escape') history.back();
     });
