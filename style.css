@@ -88,7 +88,9 @@ h3 {
 }
 
 
-.main-title { margin-bottom: 20px; }
+.main-title { 
+    margin: 20px 0; 
+}
 
 .main-buttons {
     display: flex;
