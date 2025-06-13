@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById("image-viewer-modal");
     const modalImg = document.getElementById("image-viewer-content");
     let currentPageId = "page-main";
+    const initialTitle = "Расписание"; // Начальный заголовок для главной страницы
     let lastTapTime = 0;
 
     function applyTelegramTheme() {
@@ -33,16 +34,26 @@ document.addEventListener("DOMContentLoaded", () => {
         style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#f0f0f0');
     }
 
-    function showPage(pageId, push = true) {
+    /**
+     * Показывает указанную страницу и обновляет заголовок документа.
+     * @param {string} pageId - ID элемента страницы для отображения.
+     * @param {string} title - Новый заголовок для документа.
+     * @param {boolean} push - Управляет добавлением состояния в историю браузера.
+     */
+    function showPage(pageId, title, push = true) {
         document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
         const targetPage = document.getElementById(pageId);
         if (targetPage) {
             targetPage.classList.add("active");
         }
         currentPageId = pageId;
+        document.title = title || initialTitle; // Обновляем заголовок
+
         if (push) {
-            history.pushState({ page: pageId }, '', `#${pageId}`);
+            // Сохраняем pageId и title в истории для корректной работы кнопки "назад"
+            history.pushState({ page: pageId, title: title }, title, `#${pageId}`);
         }
+
         if (pageId === "page-main") {
             tg.BackButton.hide();
         } else {
@@ -73,12 +84,17 @@ document.addEventListener("DOMContentLoaded", () => {
             if (items.some(item => item.subject)) {
                 items.forEach(item => {
                     if (!item.subject) return;
+                    
+                    // Собираем информацию о паре, фильтруя пустые значения (например, если нет типа)
+                    const infoParts = [item.classroom, item.teacher, item.type].filter(Boolean);
+
                     htmlContent += `
                         <li class="schedule-item">
                             <div class="schedule-item-time">${item.time.replace(/-/g, '<br>')}</div>
                             <div class="schedule-item-details">
                                 <div class="schedule-item-subject">${item.subject}</div>
-                                <div class="schedule-item-info">${item.classroom} &bull; ${item.teacher}</div>
+                                <!-- Выводим информацию, объединенную через разделитель -->
+                                <div class="schedule-item-info">${infoParts.join(' &bull; ')}</div>
                             </div>
                         </li>`;
                 });
@@ -231,7 +247,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const currentTime = new Date().getTime();
         const tapLength = currentTime - lastTapTime;
         if (tapLength < 300 && tapLength > 0) {
-            // Double-tap
             e.preventDefault();
             if (viewerState.scale > 1) {
                 resetImageViewerState();
@@ -242,11 +257,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 modalImg.classList.add('zoomed');
             }
             lastTapTime = 0;
-        } else {
-            // Single-tap - do nothing to the image
         }
         lastTapTime = currentTime;
     }
+    
+    // --- Инициализация приложения ---
     
     try {
         tg.ready();
@@ -258,45 +273,53 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Telegram WebApp API not available.", e);
     }
 
-    history.replaceState({ page: "page-main" }, "", "#page-main");
-    showPage("page-main", false);
+    // Установка заголовков на главной странице из data.js
+    document.getElementById("session-title").textContent = sessionInfo.title;
+    document.getElementById("session-dates").textContent = sessionInfo.dates;
 
+    // Начальная установка состояния истории
+    history.replaceState({ page: "page-main", title: initialTitle }, initialTitle, "#page-main");
+    showPage("page-main", initialTitle, false);
+
+    // Рендеринг расписаний
     renderSchedule("schedule-list-zis231", scheduleZis231Data);
     renderSchedule("schedule-list-zis232", scheduleZis232Data);
     loadPngList();
 
+    // Назначение обработчиков на кнопки навигации
     document.querySelectorAll("[data-target-page]").forEach(button => {
         button.addEventListener("click", (event) => {
-            showPage(`page-${event.currentTarget.dataset.targetPage}`);
+            const targetPageId = `page-${event.currentTarget.dataset.targetPage}`;
+            const targetTitle = event.currentTarget.dataset.title;
+            showPage(targetPageId, targetTitle);
         });
     });
 
+    // Обработка кнопки "назад" в браузере
     window.onpopstate = (event) => {
         if (viewerState.isOpen) {
             closeImageViewer();
         } else if (event.state && event.state.page) {
-            showPage(event.state.page, false);
+            // Восстанавливаем страницу и заголовок из истории
+            showPage(event.state.page, event.state.title, false);
         } else {
-            showPage("page-main", false);
+            showPage("page-main", initialTitle, false);
         }
     };
+
+    // --- Обработчики для модального окна ---
 
     modal.addEventListener('click', (e) => {
         if (e.target === modal) history.back();
     });
     modal.addEventListener('wheel', onWheel, { passive: false });
     
-    // Custom tap/click handler for the image
     modalImg.addEventListener('click', handleImageTap);
-
-    // Pointer events for dragging
     modalImg.addEventListener('pointerdown', onPointerDown);
     modalImg.addEventListener('pointermove', onPointerMove);
     modalImg.addEventListener('pointerup', onPointerUp);
     modalImg.addEventListener('pointercancel', onPointerUp);
     modalImg.addEventListener('pointerleave', onPointerUp);
-
-    // Touch events for pinching
     modalImg.addEventListener('touchstart', onTouchStart, { passive: false });
     modalImg.addEventListener('touchmove', onTouchMove, { passive: false });
     modalImg.addEventListener('touchend', onTouchEnd);
