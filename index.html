@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <!-- Начальный заголовок -->
     <title>Расписание</title>
     <link rel="stylesheet" href="./style.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -14,12 +13,10 @@
     <div id="app-container">
         <div id="page-main" class="page active">
             <div class="main-title">
-                <!-- Заголовки теперь вставляются из data.js -->
                 <h1 id="session-title"></h1>
                 <h3 id="session-dates"></h3>
             </div>
             <div class="main-buttons">
-                <!-- Добавлены атрибуты data-title для смены заголовка страницы -->
                 <button class="main-button" data-target-page="zis231" data-title="Расписание ЗИС-231">Расписание ЗИС-231</button>
                 <button class="main-button" data-target-page="zis232" data-title="Расписание ЗИС-232">Расписание ЗИС-232</button>
                 <button class="main-button" data-target-page="png-list" data-title="Оригинальное расписание">Оригинальное расписание</button>
@@ -30,15 +27,25 @@
             </div>
         </div>
 
-        <div id="page-zis231" class="page">
+        <!-- Страницы с "липким" заголовком -->
+        <div id="page-zis231" class="page page-with-header">
+            <div class="page-header">
+                <h2 class="page-title"></h2>
+            </div>
             <ul class="schedule-list" id="schedule-list-zis231"></ul>
         </div>
 
-        <div id="page-zis232" class="page">
+        <div id="page-zis232" class="page page-with-header">
+            <div class="page-header">
+                <h2 class="page-title"></h2>
+            </div>
             <ul class="schedule-list" id="schedule-list-zis232"></ul>
         </div>
 
-        <div id="page-png-list" class="page">
+        <div id="page-png-list" class="page page-with-header">
+            <div class="page-header">
+                <h2 class="page-title"></h2>
+            </div>
             <div class="png-list-container" id="png-list-container">
             </div>
         </div>
