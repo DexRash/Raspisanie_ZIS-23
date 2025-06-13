@@ -42,6 +42,7 @@ body {
 }
 
 #page-main {
+    width: 100%;
     justify-content: center;
     max-width: 640px;
     margin: 0 auto;
