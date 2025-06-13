@@ -3,6 +3,8 @@ const sessionInfo = {
     dates: "с 26.05.2025 по 11.06.2025"
 };
 
+const lastUpdatedDate = "Информация актуальна на 13.06.2025</ br>Автоматическое обновление данных не предусмотрено"
+
 const scheduleZis231Data = [
   { date: "26.05.2025", subject: "Архитектура вычислительных систем", time: "10:00-11:30", classroom: "529М", teacher: "Добрынин А.С." },
   { date: "26.05.2025", subject: "Базы данных", time: "12:00-13:30", classroom: "507М", teacher: "Маслова Е.В." },
