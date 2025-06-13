@@ -267,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("session-title").textContent = sessionInfo.title;
     document.getElementById("session-dates").textContent = sessionInfo.dates;
-    document.getElementById("last-updated-date").textContent = lastUpdatedDate;
+    document.getElementById("last-updated-date").innerHTML = lastUpdatedDate;
 
     history.replaceState({ page: "page-main", title: initialTitle }, initialTitle, "#page-main");
     showPage("page-main", initialTitle, false);
