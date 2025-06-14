@@ -53,4 +53,4 @@ const scheduleZis232Data = [
 ];
 
 // Укажите здесь реальные пути к вашим изображениям на GitHub Pages
-const schedulePngsUrls = ["./image1.png", "./image2.png", "./image3.png", "./image4.png"];
+const schedulePngsUrls = ["./images/image1.png", "./images/image2.png", "./images/image3.png", "./images/image4.png"];
