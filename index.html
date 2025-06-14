@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Расписание</title>
@@ -8,83 +8,103 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="./data.js"></script>
     <script src="./app.js" defer></script>
-</head>
-<body>
+  </head>
+  <body>
     <div id="app-container">
-        <!-- Главная страница -->
-        <div id="page-main" class="page active">
-            <!-- Блок для объявлений -->
-            <div id="announcement-banner" class="announcement-banner"></div>
-            <div class="main-title">
-                <h1 id="session-title"></h1>
-                <h3 id="session-dates"></h3>
-            </div>
-            <div class="main-buttons">
-                <button class="main-button" data-target-page="zis231" data-title="Расписание ЗИС-231">Расписание ЗИС-231</button>
-                <button class="main-button" data-target-page="zis232" data-title="Расписание ЗИС-232">Расписание ЗИС-232</button>
-                <button class="main-button" data-target-page="png-list" data-title="Оригинальное расписание">Оригинальное расписание</button>
-                
-                <!-- Разделитель -->
-                <hr class="main-buttons-divider">
-
-                <!-- Новые кнопки -->
-                <button class="main-button" data-target-page="useful-links" data-title="Полезные ссылки">Полезные ссылки</button>
-                <button class="main-button" data-target-page="session-schedule" data-title="График сессий">График сессий</button>
-            </div>
-            <div id="last-updated-date" class="main-notice"></div>
+      <!-- Главная страница -->
+      <div id="page-main" class="page active">
+        <!-- Блок для объявлений -->
+        <div id="announcement-banner" class="announcement-banner"></div>
+        <div class="main-title">
+          <h1 id="session-title"></h1>
+          <h3 id="session-dates"></h3>
         </div>
+        <div class="main-buttons">
+          <button class="main-button" data-target-page="zis231" data-title="Расписание ЗИС-231">
+            Расписание ЗИС-231
+          </button>
+          <button class="main-button" data-target-page="zis232" data-title="Расписание ЗИС-232">
+            Расписание ЗИС-232
+          </button>
+          <button
+            class="main-button"
+            data-target-page="png-list"
+            data-title="Оригинальное расписание"
+          >
+            Оригинальное расписание
+          </button>
 
-        <!-- Страницы с "липким" заголовком -->
-        <div id="page-zis231" class="page page-with-header">
-            <div class="page-header">
-                <h2 class="page-title"></h2>
-            </div>
-            <ul class="schedule-list" id="schedule-list-zis231"></ul>
-        </div>
+          <!-- Разделитель -->
+          <hr class="main-buttons-divider" />
 
-        <div id="page-zis232" class="page page-with-header">
-            <div class="page-header">
-                <h2 class="page-title"></h2>
-            </div>
-            <ul class="schedule-list" id="schedule-list-zis232"></ul>
+          <!-- Новые кнопки -->
+          <button class="main-button" data-target-page="useful-links" data-title="Полезные ссылки">
+            Полезные ссылки
+          </button>
+          <button
+            class="main-button"
+            data-target-page="session-schedule"
+            data-title="График сессий"
+          >
+            График сессий
+          </button>
         </div>
+        <div id="last-updated-date" class="main-notice"></div>
+      </div>
 
-        <div id="page-png-list" class="page page-with-header">
-            <div class="page-header">
-                <h2 class="page-title"></h2>
-            </div>
-            <div class="png-list-container" id="png-list-container">
-            </div>
+      <!-- Страницы с "липким" заголовком -->
+      <div id="page-zis231" class="page page-with-header">
+        <div class="page-header">
+          <h2 class="page-title"></h2>
         </div>
-        
-        <!-- Новая страница: Полезные ссылки -->
-        <div id="page-useful-links" class="page page-with-header">
-            <div class="page-header">
-                <h2 class="page-title"></h2>
-            </div>
-            <ul class="useful-links-list" id="useful-links-container"></ul>
-        </div>
+        <ul class="schedule-list" id="schedule-list-zis231"></ul>
+      </div>
 
-        <!-- Новая страница: График сессий -->
-        <div id="page-session-schedule" class="page page-with-header">
-            <div class="page-header">
-                <h2 class="page-title"></h2>
-            </div>
-            <!-- Уведомление с ссылкой -->
-            <div class="page-notice">
-                Информация взята с <a href="https://oop.sibsiu.ru/download.php?s=1&file=1c9b6da051c0518c1d4311b20f58d315" target="_blank">учебного плана</a>
-            </div>
-            <div class="session-schedule-container" id="session-schedule-container">
-                <!-- Сюда будет вставлена таблица -->
-            </div>
+      <div id="page-zis232" class="page page-with-header">
+        <div class="page-header">
+          <h2 class="page-title"></h2>
         </div>
+        <ul class="schedule-list" id="schedule-list-zis232"></ul>
+      </div>
 
+      <div id="page-png-list" class="page page-with-header">
+        <div class="page-header">
+          <h2 class="page-title"></h2>
+        </div>
+        <div class="png-list-container" id="png-list-container"></div>
+      </div>
+
+      <!-- Новая страница: Полезные ссылки -->
+      <div id="page-useful-links" class="page page-with-header">
+        <div class="page-header">
+          <h2 class="page-title"></h2>
+        </div>
+        <ul class="useful-links-list" id="useful-links-container"></ul>
+      </div>
+
+      <!-- Новая страница: График сессий -->
+      <div id="page-session-schedule" class="page page-with-header">
+        <div class="page-header">
+          <h2 class="page-title"></h2>
+        </div>
+        <!-- Уведомление с ссылкой -->
+        <div class="page-notice">
+          Информация взята с
+          <a
+            href="https://oop.sibsiu.ru/downloadnew.php?sp=2282&dt=12&dh=a0ff12c8d9970ff4a8537a3d6c0509f8"
+            target="_blank"
+            >учебного плана</a
+          >
+        </div>
+        <div class="session-schedule-container" id="session-schedule-container">
+          <!-- Сюда будет вставлена таблица -->
+        </div>
+      </div>
     </div>
 
     <!-- Модальное окно для просмотра изображений -->
     <div id="image-viewer-modal" class="image-viewer-modal">
-        <img class="image-viewer-content" id="image-viewer-content">
+      <img class="image-viewer-content" id="image-viewer-content" />
     </div>
-
-</body>
+  </body>
 </html>

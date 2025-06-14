@@ -325,7 +325,7 @@ const usefulLinksData = [
   },
   {
     text: "Учебный план ЗИС-23",
-    url: "https://oop.sibsiu.ru/download.php?s=1&file=1c9b6da051c0518c1d4311b20f58d315",
+    url: "https://oop.sibsiu.ru/downloadnew.php?sp=2282&dt=12&dh=a0ff12c8d9970ff4a8537a3d6c0509f8",
     description:
       "PDF-документ с утверждённым учебным планом по направлению 09.03.02 «Информационные системы и технологии» (заочная форма, набор 2023 года).",
   },
