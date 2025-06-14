@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <thead>
                         <tr>
                             <th>Сессия</th>
-                            <th>Количество дней</th>
+                            <th>Кол. дней</th>
                             <th>Дата начала</th>
                             <th>Дата окончания</th>
                         </tr>
