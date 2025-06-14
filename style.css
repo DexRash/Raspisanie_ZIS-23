@@ -6,6 +6,8 @@
     --tg-theme-button-color: #0088cc;
     --tg-theme-button-text-color: #ffffff;
     --tg-theme-secondary-bg-color: #f0f0f0;
+    --custom-red-color: #E53935; /* Красный для экзаменов */
+    --custom-green-color: #43A047; /* Зеленый для консультаций */
 }
 
 html,
@@ -46,6 +48,8 @@ body {
     justify-content: center;
     max-width: 640px;
     margin: 0 auto;
+    padding: 0 10px;
+    box-sizing: border-box;
 }
 
 h1, h3 {
@@ -87,6 +91,18 @@ h3 {
     font-weight: 600;
 }
 
+/* --- Main Page --- */
+.announcement-banner {
+    background-color: var(--tg-theme-secondary-bg-color);
+    color: var(--tg-theme-text-color);
+    padding: 12px;
+    border-radius: 12px;
+    margin: 15px 0;
+    text-align: center;
+    font-size: 0.95em;
+    border: 1px solid var(--tg-theme-hint-color);
+}
+
 
 .main-title { 
     margin: 20px 0; 
@@ -99,6 +115,13 @@ h3 {
     margin-top: 20px;
     flex-grow: 1;
     justify-content: center;
+}
+
+.main-buttons-divider {
+    border: none;
+    height: 1px;
+    background-color: var(--tg-theme-hint-color);
+    margin: 10px 0;
 }
 
 .main-notice {
@@ -127,6 +150,7 @@ h3 {
 .main-button:hover { filter: brightness(1.1); }
 .main-button:active { transform: scale(0.98); }
 
+/* --- Schedule List --- */
 .schedule-list {
     display: flex;
     flex-direction: column;
@@ -200,11 +224,17 @@ h3 {
     color: var(--tg-theme-hint-color);
 }
 
-/* --- NEW: Style for lesson type --- */
 .schedule-item-type {
     font-weight: 500;
-    color: var(--tg-theme-button-color);
 }
+/* Стилизация типа занятия */
+.schedule-item-type.type-exam {
+    color: var(--custom-red-color);
+}
+.schedule-item-type.type-info {
+    color: var(--custom-green-color);
+}
+
 
 .schedule-item-no-subjects {
     text-align: center;
@@ -215,6 +245,89 @@ h3 {
 
 .schedule-day-today {
     border: 2px solid var(--tg-theme-button-color);
+}
+
+/* --- Useful Links --- */
+.useful-links-list {
+    list-style: none;
+    padding: 15px 10px;
+    margin: 0 auto;
+    max-width: 640px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.useful-link-item a {
+    display: block;
+    background-color: var(--tg-theme-secondary-bg-color);
+    padding: 15px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--tg-theme-text-color);
+    transition: background-color 0.2s;
+}
+
+.useful-link-item a:hover {
+    background-color: var(--tg-theme-bg-color);
+}
+
+.useful-link-title {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: var(--tg-theme-link-color);
+}
+
+.useful-link-description {
+    font-size: 0.9em;
+    color: var(--tg-theme-hint-color);
+    margin-top: 5px;
+}
+
+/* --- Session Schedule Table --- */
+.session-schedule-container {
+    padding: 15px;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.session-schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+    background-color: var(--tg-theme-secondary-bg-color);
+}
+
+.session-schedule-table caption {
+    caption-side: top;
+    font-size: 1.3em;
+    font-weight: 600;
+    padding: 10px;
+    color: var(--tg-theme-text-color);
+    background-color: var(--tg-theme-bg-color);
+}
+
+.session-schedule-table th,
+.session-schedule-table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid var(--tg-theme-hint-color);
+}
+
+.session-schedule-table th {
+    background-color: var(--tg-theme-bg-color);
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+.session-schedule-table .course-header {
+    background-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    font-size: 1.1em;
 }
 
 /* --- PNG List Styles --- */

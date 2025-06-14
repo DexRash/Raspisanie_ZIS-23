@@ -1,10 +1,16 @@
+// Информация о текущей сессии
 const sessionInfo = {
     title: "Летняя сессия",
     dates: "26.05.2025 – 11.06.2025"
 };
 
-const lastUpdatedDate = "Информация актуальна на 13.06.2025<br>Автоматическое обновление данных не предусмотрено"
+// Текст для блока объявлений на главной странице
+const announcementText = "Внимание! Расписание носит предварительный характер. Возможны изменения. Следите за обновлениями на официальном сайте.";
 
+// Дата последнего обновления
+const lastUpdatedDate = "Информация актуальна на 13.06.2025<br>Автоматическое обновление данных не предусмотрено";
+
+// Расписание для группы ЗИС-231
 const scheduleZis231Data = [
   { date: "26.05.2025", subject: "Архитектура вычислительных систем", time: "10:00-11:30", classroom: "529М", teacher: "Добрынин А.С." },
   { date: "26.05.2025", subject: "Базы данных", time: "12:00-13:30", classroom: "507М", teacher: "Маслова Е.В." },
@@ -44,6 +50,7 @@ const scheduleZis231Data = [
   { date: "11.06.2025", subject: "Методы принятия решений и управление организационными системами", time: "10:00-11:30", classroom: "542М", teacher: "Шакиров М.К.", type: "экзамен" },
 ];
 
+// Расписание для группы ЗИС-232
 const scheduleZis232Data = [
   { date: "01.09.2025", subject: "Высшая математика", time: "12:00-13:30", classroom: "302", teacher: "Смирнов И.К." },
   { date: "01.09.2025", subject: "Основы алгоритмизации", time: "12:00-13:30", classroom: "401", teacher: "Ковалева А.С." },
@@ -52,5 +59,67 @@ const scheduleZis232Data = [
   { date: "03.09.2025", subject: "Веб-программирование", time: "12:00-13:30", classroom: "410", teacher: "Николаев Г.И." },
 ];
 
-// Укажите здесь реальные пути к вашим изображениям на GitHub Pages
+// Ссылки на оригинальное расписание в PNG
 const schedulePngsUrls = ["./images/image1.png", "./images/image2.png", "./images/image3.png", "./images/image4.png"];
+
+// Полезные ссылки
+const usefulLinksData = [
+    {
+        text: "Личный кабинет студента",
+        url: "https://e.vyatsu.ru/",
+        description: "Доступ к успеваемости, финансам и другой важной информации."
+    },
+    {
+        text: "Основное расписание",
+        url: "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html",
+        description: "Расписание занятий на официальном сайте ВятГУ."
+    },
+    {
+        text: "Электронная библиотека",
+        url: "https://library.vyatsu.ru/",
+        description: "Доступ к учебным материалам и научной литературе."
+    }
+];
+
+// Данные для графика сессий (из картинки)
+const sessionScheduleData = [
+    {
+        course: "Курс 1",
+        sessions: [
+            { name: "Установочная сессия", duration: 5, start: "20 окт 2023 г.", end: "24 окт 2023 г.", week: 8 },
+            { name: "Зимняя сессия", duration: 17, start: "12 янв 2024 г.", end: "28 янв 2024 г.", week: 20 },
+            { name: "Летняя сессия", duration: 18, start: "8 июня 2024 г.", end: "25 июня 2024 г.", week: 41 }
+        ]
+    },
+    {
+        course: "Курс 2",
+        sessions: [
+            { name: "Установочная сессия", duration: 2, start: "24 июня 2024 г.", end: "25 июня 2024 г.", week: 43 },
+            { name: "Зимняя сессия", duration: 20, start: "13 янв 2025 г.", end: "1 февр 2025 г.", week: 20 },
+            { name: "Летняя сессия", duration: 18, start: "27 мая 2025 г.", end: "13 июня 2025 г.", week: 39 }
+        ]
+    },
+    {
+        course: "Курс 3",
+        sessions: [
+            { name: "Установочная сессия", duration: 2, start: "9 июня 2025 г.", end: "10 июня 2025 г.", week: 41 },
+            { name: "Зимняя сессия", duration: 25, start: "12 янв 2026 г.", end: "5 февр 2026 г.", week: 20 },
+            { name: "Летняя сессия", duration: 23, start: "22 мая 2026 г.", end: "13 июня 2026 г.", week: 38 }
+        ]
+    },
+    {
+        course: "Курс 4",
+        sessions: [
+            { name: "Установочная сессия", duration: 2, start: "14 июня 2026 г.", end: "15 июня 2026 г.", week: 41 },
+            { name: "Зимняя сессия", duration: 25, start: "12 янв 2027 г.", end: "5 февр 2027 г.", week: 20 },
+            { name: "Летняя сессия", duration: 23, start: "22 мая 2027 г.", end: "13 июня 2027 г.", week: 38 }
+        ]
+    },
+    {
+        course: "Курс 5",
+        sessions: [
+            { name: "Установочная сессия", duration: 2, start: "8 июня 2027 г.", end: "9 июня 2027 г.", week: 41 },
+            { name: "Зимняя сессия", duration: 23, start: "3 ноя 2027 г.", end: "25 ноя 2027 г.", week: 10 }
+        ]
+    }
+];

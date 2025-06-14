@@ -11,7 +11,10 @@
 </head>
 <body>
     <div id="app-container">
+        <!-- Главная страница -->
         <div id="page-main" class="page active">
+            <!-- Блок для объявлений -->
+            <div id="announcement-banner" class="announcement-banner"></div>
             <div class="main-title">
                 <h1 id="session-title"></h1>
                 <h3 id="session-dates"></h3>
@@ -20,6 +23,13 @@
                 <button class="main-button" data-target-page="zis231" data-title="Расписание ЗИС-231">Расписание ЗИС-231</button>
                 <button class="main-button" data-target-page="zis232" data-title="Расписание ЗИС-232">Расписание ЗИС-232</button>
                 <button class="main-button" data-target-page="png-list" data-title="Оригинальное расписание">Оригинальное расписание</button>
+                
+                <!-- Разделитель -->
+                <hr class="main-buttons-divider">
+
+                <!-- Новые кнопки -->
+                <button class="main-button" data-target-page="useful-links" data-title="Полезные ссылки">Полезные ссылки</button>
+                <button class="main-button" data-target-page="session-schedule" data-title="График сессий">График сессий</button>
             </div>
             <div id="last-updated-date" class="main-notice"></div>
         </div>
@@ -46,6 +56,25 @@
             <div class="png-list-container" id="png-list-container">
             </div>
         </div>
+        
+        <!-- Новая страница: Полезные ссылки -->
+        <div id="page-useful-links" class="page page-with-header">
+            <div class="page-header">
+                <h2 class="page-title"></h2>
+            </div>
+            <ul class="useful-links-list" id="useful-links-container"></ul>
+        </div>
+
+        <!-- Новая страница: График сессий -->
+        <div id="page-session-schedule" class="page page-with-header">
+            <div class="page-header">
+                <h2 class="page-title"></h2>
+            </div>
+            <div class="session-schedule-container" id="session-schedule-container">
+                <!-- Сюда будет вставлена таблица -->
+            </div>
+        </div>
+
     </div>
 
     <!-- Модальное окно для просмотра изображений -->

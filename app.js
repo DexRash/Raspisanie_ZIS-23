@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const tg = window.Telegram.WebApp;
 
+    // State for the image viewer
     const viewerState = {
         isOpen: false, scale: 1, maxScale: 4, isDragging: false,
         isPinching: false, startX: 0, startY: 0, translateX: 0,
@@ -13,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const initialTitle = "Расписание";
     let lastTapTime = 0;
 
+    // Apply theme from Telegram
     function applyTelegramTheme() {
         document.body.style.backgroundColor = tg.themeParams.bg_color || '#ffffff';
         document.body.style.color = tg.themeParams.text_color || '#000000';
@@ -26,18 +28,18 @@ document.addEventListener("DOMContentLoaded", () => {
         style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#f0f0f0');
     }
 
+    // Show a specific page
     function showPage(pageId, title, push = true) {
         document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
         const targetPage = document.getElementById(pageId);
         if (targetPage) {
             targetPage.classList.add("active");
-            // Прокрутка страницы вверх при переходе
-            targetPage.scrollTop = 0;
+            targetPage.scrollTop = 0; // Scroll to top on page change
         }
         currentPageId = pageId;
         document.title = title || initialTitle;
 
-        // Обновляем текст в "липком" заголовке
+        // Update the sticky header title
         const headerTitleElement = document.querySelector(`#${pageId} .page-title`);
         if (headerTitleElement) {
             headerTitleElement.textContent = title;
@@ -53,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Render schedule for a group
     function renderSchedule(containerId, scheduleData) {
         const listContainer = document.getElementById(containerId);
         if (!listContainer) return;
@@ -76,19 +79,27 @@ document.addEventListener("DOMContentLoaded", () => {
             if (items.some(item => item.subject)) {
                 items.forEach(item => {
                     if (!item.subject) return;
-                    
-                    // Собираем информацию, оборачивая тип в span для стилизации
-                    const infoParts = [item.classroom, item.teacher];
+
+                    // Determine class for item type (red/green color)
+                    let typeClass = '';
                     if (item.type) {
-                        infoParts.push(`<span class="schedule-item-type">${item.type}</span>`);
+                        const lowerCaseType = item.type.toLowerCase();
+                        if (lowerCaseType.includes('экзамен') || lowerCaseType.includes('зачет') || lowerCaseType.includes('защита')) {
+                           typeClass = 'type-exam'; 
+                        } else {
+                           typeClass = 'type-info';
+                        }
                     }
+                    
+                    const typeSpan = item.type ? `<span class="schedule-item-type ${typeClass}">${item.type}</span>` : '';
+                    const infoParts = [item.classroom, item.teacher, typeSpan].filter(Boolean).join(' &bull; ');
 
                     htmlContent += `
                         <li class="schedule-item">
                             <div class="schedule-item-time">${item.time.replace(/-/g, '<br>')}</div>
                             <div class="schedule-item-details">
                                 <div class="schedule-item-subject">${item.subject}</div>
-                                <div class="schedule-item-info">${infoParts.filter(Boolean).join(' &bull; ')}</div>
+                                <div class="schedule-item-info">${infoParts}</div>
                             </div>
                         </li>`;
                 });
@@ -100,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
         listContainer.innerHTML = htmlContent;
     }
 
+    // Load original schedule images
     function loadPngList() {
         const container = document.getElementById("png-list-container");
         if (!container) return;
@@ -114,6 +126,58 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // NEW: Render useful links
+    function renderUsefulLinks() {
+        const container = document.getElementById("useful-links-container");
+        if (!container || !usefulLinksData) return;
+        container.innerHTML = usefulLinksData.map(link => `
+            <li class="useful-link-item">
+                <a href="${link.url}" target="_blank">
+                    <div class="useful-link-title">${link.text}</div>
+                    <p class="useful-link-description">${link.description}</p>
+                </a>
+            </li>
+        `).join('');
+    }
+
+    // NEW: Render session schedule table
+    function renderSessionSchedule() {
+        const container = document.getElementById("session-schedule-container");
+        if (!container || !sessionScheduleData) return;
+
+        let tableHTML = '';
+        sessionScheduleData.forEach(courseData => {
+            tableHTML += `
+                <table class="session-schedule-table">
+                    <caption class="course-header">${courseData.course}</caption>
+                    <thead>
+                        <tr>
+                            <th>Сессия</th>
+                            <th>Продолж.</th>
+                            <th>Дата начала/Номер недели</th>
+                            <th>Дата окончания/Номер недели</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            courseData.sessions.forEach(session => {
+                tableHTML += `
+                    <tr>
+                        <td>${session.name}</td>
+                        <td>${session.duration}</td>
+                        <td>${session.start} / ${session.week}</td>
+                        <td>${session.end} / ${session.week + Math.ceil(session.duration / 7) -1 }</td>
+                    </tr>
+                `;
+            });
+            tableHTML += '</tbody></table>';
+        });
+
+        container.innerHTML = tableHTML;
+    }
+
+
+    // Image viewer functions
     function openImageViewer(imageUrl) {
         history.pushState({ modal: true }, "", "#viewer");
         viewerState.isOpen = true;
@@ -254,7 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lastTapTime = currentTime;
     }
     
-    // --- Инициализация ---
+    // --- Initialization ---
     try {
         tg.ready();
         tg.expand();
@@ -265,17 +329,24 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Telegram WebApp API not available.", e);
     }
 
+    // Populate main page info
+    document.getElementById("announcement-banner").textContent = announcementText;
     document.getElementById("session-title").textContent = sessionInfo.title;
     document.getElementById("session-dates").textContent = sessionInfo.dates;
     document.getElementById("last-updated-date").innerHTML = lastUpdatedDate;
 
+    // Set initial state for history
     history.replaceState({ page: "page-main", title: initialTitle }, initialTitle, "#page-main");
     showPage("page-main", initialTitle, false);
 
+    // Render all content
     renderSchedule("schedule-list-zis231", scheduleZis231Data);
     renderSchedule("schedule-list-zis232", scheduleZis232Data);
     loadPngList();
+    renderUsefulLinks();
+    renderSessionSchedule();
 
+    // Set up navigation buttons
     document.querySelectorAll("[data-target-page]").forEach(button => {
         button.addEventListener("click", (event) => {
             const targetPageId = `page-${event.currentTarget.dataset.targetPage}`;
@@ -284,6 +355,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // Handle browser back/forward buttons
     window.onpopstate = (event) => {
         if (viewerState.isOpen) {
             closeImageViewer();
@@ -294,6 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // Event listeners for the image viewer
     modal.addEventListener('click', (e) => {
         if (e.target === modal) history.back();
     });
