@@ -328,10 +328,11 @@ h3 {
 }
 
 .useful-link-arrow {
+  height: 48px;
   font-size: 1.8em;
   color: var(--tg-theme-hint-color);
   font-weight: bold;
-  transition: transform 0.2s;
+  /* transition: transform 0.2s; */
 }
 
 .useful-link-item a:hover .useful-link-arrow {

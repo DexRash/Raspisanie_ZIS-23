@@ -18,11 +18,11 @@ const directorateScheduleData = [
   { day: "Вторник", time: "8:00 - 16:30", techBreak: "8:30 - 9:30", lunch: "12:00 - 12:30" },
   {
     day: "Среда",
-    time: "8:00 - 16:30",
-    techBreak: "<span style='color: var(--custom-red-color); font-weight: bold'>Нет приема</span>",
+    time: "8:00 - 16:30<br><span style='color: var(--custom-red-color); font-weight: bold'>Нет приема</span>",
+    techBreak: "—",
     lunch: "—",
   },
-  { day: "Четверг", time: "10:00 - 19:00", techBreak: "Нет перерыва", lunch: "12:00 - 12:30" },
+  { day: "Четверг", time: "10:00 - 19:00", techBreak: "—", lunch: "12:00 - 12:30" },
   { day: "Пятница", time: "8:00 - 14:00", techBreak: "8:30 - 9:30", lunch: "12:00 - 12:30" },
 ];
 
