@@ -395,7 +395,11 @@ h3 {
 }
 
 .session-schedule-table thead {
-  background-color: var(--tg-theme-bg-color);
+  background-color: var(--tg-theme-button-color);
+}
+
+.session-schedule-table thead th {
+  color: var(--tg-theme-button-text-color);
 }
 
 .session-schedule-table th,
