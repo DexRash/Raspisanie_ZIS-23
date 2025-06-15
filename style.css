@@ -73,7 +73,7 @@ h3 {
 /* --- Sticky Header Styles --- */
 .page-with-header {
   /* Удаляем flex-свойства, они больше не нужны для заголовка */
-  margin-top: 60px; /* Добавляем отступ сверху, равный высоте заголовка */
+  margin-top: 40px; /* Добавляем отступ сверху, равный высоте заголовка */
   overflow-y: auto; /* Включаем прокрутку для контента страницы */
   height: 100vh; /* Занимаем всю высоту экрана */
   box-sizing: border-box;
@@ -85,12 +85,12 @@ h3 {
   left: 0; /* Явно указываем позицию */
   width: 100%;
   background-color: var(--tg-theme-secondary-bg-color);
-  padding: 12px 15px;
+  padding: 4px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   z-index: 100;
   box-sizing: border-box;
   text-align: center;
-  height: 60px; /* Задаем фиксированную высоту для расчета отступа */
+  height: 40px; /* Задаем фиксированную высоту для расчета отступа */
 }
 
 .page-title {
@@ -387,7 +387,7 @@ h3 {
 .session-schedule-table td,
 .directorate-schedule-table th,
 .directorate-schedule-table td {
-  padding: 10px;
+  padding: 5px;
   text-align: center;
   border: 1px solid
     color-mix(in srgb, var(--tg-theme-secondary-bg-color) 70%, var(--tg-theme-hint-color));

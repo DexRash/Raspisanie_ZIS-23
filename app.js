@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         </li>`;
         });
       } else {
-        htmlContent += `<li class="schedule-item-no-subjects"><p>В этот день нет пар!</p></li>`;
+        htmlContent += `<li class="schedule-item-no-subjects">В этот день нет пар!</li>`;
       }
       htmlContent += `</ul></li>`;
     });
