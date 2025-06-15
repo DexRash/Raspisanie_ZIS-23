@@ -98,7 +98,7 @@ h3 {
   font-size: 1.2em;
   color: var(--tg-theme-text-color);
   font-weight: 600;
-  line-height: 36px; /* Вертикально центрируем текст в заголовке */
+  line-height: 40px; /* Вертикально центрируем текст в заголовке */
 }
 
 /* --- Main Page & Page Notices --- */
