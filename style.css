@@ -387,7 +387,7 @@ h3 {
 .session-schedule-table td,
 .directorate-schedule-table th,
 .directorate-schedule-table td {
-  padding: 5px;
+  padding: 10px 5px;
   text-align: center;
   border: 1px solid
     color-mix(in srgb, var(--tg-theme-secondary-bg-color) 70%, var(--tg-theme-hint-color));
