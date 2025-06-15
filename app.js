@@ -415,7 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Populate main page info
-  document.getElementById("announcement-banner").textContent = announcementText;
+  /* document.getElementById("announcement-banner").textContent = announcementText; */
   document.getElementById("session-title").textContent = sessionInfo.title;
   document.getElementById("session-dates").textContent = sessionInfo.dates;
   document.getElementById("last-updated-date").innerHTML = lastUpdatedDate;
