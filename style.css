@@ -357,7 +357,7 @@ h3 {
 .session-schedule-table,
 .directorate-schedule-table {
   width: 100%;
-  min-width: 500px;
+  /* min-width: 500px; */
   border-collapse: collapse;
   font-size: 0.9em;
   background-color: var(--tg-theme-secondary-bg-color);
