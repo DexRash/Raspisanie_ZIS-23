@@ -410,9 +410,9 @@ h3 {
   font-size: 1.1em;
 }
 
-.directorate-schedule-table tbody tr:nth-child(odd) {
+/* .directorate-schedule-table tbody tr:nth-child(odd) {
   background-color: var(--tg-theme-bg-color);
-}
+} */
 
 /* --- PNG List Styles --- */
 .png-list-container {
