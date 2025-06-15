@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // NEW: Render useful links
+  // Render useful links
   function renderUsefulLinks() {
     const container = document.getElementById("useful-links-container");
     if (!container || !usefulLinksData) return;
@@ -161,8 +161,11 @@ document.addEventListener("DOMContentLoaded", () => {
         (link) => `
             <li class="useful-link-item">
                 <a href="${link.url}" target="_blank">
-                    <div class="useful-link-title">${link.text}</div>
-                    <p class="useful-link-description">${link.description}</p>
+                    <div class="useful-link-content">
+                        <div class="useful-link-title">${link.text}</div>
+                        <p class="useful-link-description">${link.description}</p>
+                    </div>
+                     <div class="useful-link-arrow">›</div>
                 </a>
             </li>
         `
@@ -170,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   }
 
-  // NEW: Render session schedule table
+  // Render session schedule table
   function renderSessionSchedule() {
     const container = document.getElementById("session-schedule-container");
     if (!container || !sessionScheduleData) return;
@@ -203,6 +206,39 @@ document.addEventListener("DOMContentLoaded", () => {
       tableHTML += "</tbody></table>";
     });
 
+    container.innerHTML = tableHTML;
+  }
+
+  // NEW: Render directorate schedule
+  function renderDirectorateSchedule() {
+    const container = document.getElementById("directorate-schedule-container");
+    if (!container || !directorateScheduleData) return;
+
+    let tableHTML = `
+      <table class="directorate-schedule-table">
+        <thead>
+          <tr>
+            <th>День</th>
+            <th>Время работы</th>
+            <th>Тех. перерыв</th>
+            <th>Обед</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    directorateScheduleData.forEach((item) => {
+      tableHTML += `
+        <tr>
+          <td>${item.day}</td>
+          <td>${item.time}</td>
+          <td>${item.techBreak}</td>
+          <td>${item.lunch}</td>
+        </tr>
+      `;
+    });
+
+    tableHTML += "</tbody></table>";
     container.innerHTML = tableHTML;
   }
 
@@ -394,6 +430,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadPngList();
   renderUsefulLinks();
   renderSessionSchedule();
+  renderDirectorateSchedule(); // Render the new schedule
 
   // Set up navigation buttons
   document.querySelectorAll("[data-target-page]").forEach((button) => {

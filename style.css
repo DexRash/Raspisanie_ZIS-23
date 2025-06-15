@@ -1,409 +1,476 @@
 :root {
-    --tg-theme-bg-color: #ffffff;
-    --tg-theme-text-color: #000000;
-    --tg-theme-hint-color: #999999;
-    --tg-theme-link-color: #0000ff;
-    --tg-theme-button-color: #0088cc;
-    --tg-theme-button-text-color: #ffffff;
-    --tg-theme-secondary-bg-color: #f0f0f0;
-    --custom-red-color: #E53935; /* Красный для экзаменов */
-    --custom-green-color: #43A047; /* Зеленый для консультаций */
+  --tg-theme-bg-color: #ffffff;
+  --tg-theme-text-color: #000000;
+  --tg-theme-hint-color: #999999;
+  --tg-theme-link-color: #0000ff;
+  --tg-theme-button-color: #0088cc;
+  --tg-theme-button-text-color: #ffffff;
+  --tg-theme-secondary-bg-color: #f0f0f0;
+  --custom-red-color: #e53935; /* Красный для экзаменов */
+  --custom-green-color: #43a047; /* Зеленый для консультаций */
 }
 
 html,
 body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--tg-theme-bg-color);
-    color: var(--tg-theme-text-color);
-    transition: background-color 0.3s ease, color 0.3s ease;
-    overflow: hidden;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow: auto;
 }
 
 #app-container {
-    height: 100%;
-    padding: 0px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    box-sizing: border-box;
+  height: 100%;
+  padding: 0px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .page {
-    display: none;
-    height: 100%;
-    overflow-y: auto;
-    flex-direction: column;
+  display: none;
+  height: 100%;
+  /* overflow-y: auto; */
+  flex-direction: column;
 }
 
 .page.active {
-    display: flex;
+  display: flex;
 }
 
 #page-main {
-    width: 100%;
-    justify-content: center;
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 0 10px;
-    box-sizing: border-box;
+  width: 100%;
+  /* justify-content: center; */
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 10px;
+  box-sizing: border-box;
 }
 
-h1, h3 {
-    color: var(--tg-theme-text-color);
-    text-align: center;
-    flex-shrink: 0;
-    margin: 0;
+h1,
+h3 {
+  color: var(--tg-theme-text-color);
+  text-align: center;
+  flex-shrink: 0;
+  margin: 0;
 }
 
-h1 { font-size: 1.8em; }
+h1 {
+  font-size: 1.8em;
+}
 
 h3 {
-    font-size: 1.1em;
-    color: var(--tg-theme-hint-color);
-    font-weight: normal;
+  font-size: 1.1em;
+  color: var(--tg-theme-hint-color);
+  font-weight: normal;
 }
 
 /* --- Sticky Header Styles --- */
 .page-with-header {
-    justify-content: flex-start;
+  /* Удаляем flex-свойства, они больше не нужны для заголовка */
+  margin-top: 60px; /* Добавляем отступ сверху, равный высоте заголовка */
+  overflow-y: auto; /* Включаем прокрутку для контента страницы */
+  height: 100vh; /* Занимаем всю высоту экрана */
+  box-sizing: border-box;
 }
 
 .page-header {
-    position: sticky;
-    top: 0;
-    width: 100%;
-    background-color: var(--tg-theme-secondary-bg-color);
-    padding: 12px 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 100;
-    box-sizing: border-box;
-    text-align: center;
+  position: fixed; /* Вот оно, главное изменение! */
+  top: 0;
+  left: 0; /* Явно указываем позицию */
+  width: 100%;
+  background-color: var(--tg-theme-secondary-bg-color);
+  padding: 12px 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  box-sizing: border-box;
+  text-align: center;
+  height: 60px; /* Задаем фиксированную высоту для расчета отступа */
 }
 
 .page-title {
-    margin: 0;
-    font-size: 1.2em;
-    color: var(--tg-theme-text-color);
-    font-weight: 600;
+  margin: 0;
+  font-size: 1.2em;
+  color: var(--tg-theme-text-color);
+  font-weight: 600;
+  line-height: 36px; /* Вертикально центрируем текст в заголовке */
 }
 
 /* --- Main Page & Page Notices --- */
 .announcement-banner {
-    background-color: var(--tg-theme-secondary-bg-color);
-    color: var(--tg-theme-text-color);
-    padding: 12px;
-    border-radius: 12px;
-    margin: 15px 0;
-    text-align: center;
-    font-size: 0.95em;
-    border: 1px solid var(--tg-theme-hint-color);
+  background-color: var(--tg-theme-secondary-bg-color);
+  color: var(--tg-theme-text-color);
+  padding: 12px;
+  border-radius: 12px;
+  margin: 15px 0;
+  text-align: center;
+  font-size: 0.95em;
+  border: 1px solid var(--tg-theme-hint-color);
 }
 
 .page-notice {
-    background-color: var(--tg-theme-secondary-bg-color);
-    color: var(--tg-theme-text-color);
-    padding: 12px;
-    border-radius: 12px;
-    margin: 15px 10px;
-    text-align: center;
-    font-size: 0.95em;
-    border: 1px solid var(--tg-theme-hint-color);
+  background-color: var(--tg-theme-secondary-bg-color);
+  color: var(--tg-theme-text-color);
+  padding: 12px;
+  border-radius: 12px;
+  margin: 15px 10px;
+  text-align: center;
+  font-size: 0.95em;
+  border: 1px solid var(--tg-theme-hint-color);
 }
 .page-notice a {
-    color: var(--tg-theme-link-color);
-    font-weight: 500;
-    text-decoration: none;
+  color: var(--tg-theme-link-color);
+  font-weight: 500;
+  text-decoration: none;
 }
 .page-notice a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
-
-.main-title { 
-    margin: 20px 0; 
+.main-title {
+  margin: 20px 0;
 }
 
 .main-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
-    flex-grow: 1;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+  flex-grow: 1;
+  justify-content: center;
 }
 
 .main-buttons-divider {
-    border: none;
-    height: 1px;
-    background-color: var(--tg-theme-hint-color);
-    margin: 10px 0;
+  border: none;
+  height: 1px;
+  background-color: var(--tg-theme-hint-color);
+  margin: 10px 0;
 }
 
 .main-notice {
-    font-size: 14px;
-    color: var(--tg-theme-hint-color);
-    text-align: center;
-    margin-top: 20px;
-    padding: 10px;
+  font-size: 14px;
+  color: var(--tg-theme-hint-color);
+  text-align: center;
+  margin-top: 20px;
+  padding: 10px;
 }
 
 .main-button {
-    display: block;
-    padding: 15px 20px;
-    margin: 0 10px;
-    background-color: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
-    border: none;
-    border-radius: 12px;
-    font-size: 1.5em;
-    font-weight: 500;
-    cursor: pointer;
-    text-align: center;
-    transition: filter 0.2s ease, transform 0.1s ease;
+  display: block;
+  padding: 15px 20px;
+  margin: 0 10px;
+  background-color: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+  border: none;
+  border-radius: 12px;
+  font-size: 1.5em;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: filter 0.2s ease, transform 0.1s ease;
 }
 
-.main-button:hover { filter: brightness(1.1); }
-.main-button:active { transform: scale(0.98); }
+.main-button:hover {
+  filter: brightness(1.1);
+}
+.main-button:active {
+  transform: scale(0.98);
+}
 
 /* --- Schedule List --- */
 .schedule-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 100%;
-    max-width: 640px;
-    list-style: none;
-    padding: 15px 10px;
-    margin: 0 auto;
-    box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 640px;
+  list-style: none;
+  padding: 15px 10px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .schedule-day-block {
-    background-color: var(--tg-theme-secondary-bg-color);
-    border-radius: 12px;
-    padding: 10px;
+  background-color: var(--tg-theme-secondary-bg-color);
+  border-radius: 12px;
+  padding: 10px;
 }
 
 .schedule-day-block h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: var(--tg-theme-link-color);
-    font-size: 1.2em;
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--tg-theme-link-color);
+  font-size: 1.2em;
 }
 
 .schedule-date {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .schedule-day-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .schedule-item {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    gap: 15px;
-    align-items: start;
-    background-color: var(--tg-theme-bg-color);
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 15px;
+  align-items: start;
+  background-color: var(--tg-theme-bg-color);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
 }
 
-.schedule-item:last-child { margin-bottom: 0; }
+.schedule-item:last-child {
+  margin-bottom: 0;
+}
 
 .schedule-item-time {
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  font-weight: 500;
 }
 
 .schedule-item-details {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .schedule-item-subject {
-    font-weight: 600;
-    font-size: 1.1em;
+  font-weight: 600;
+  font-size: 1.1em;
 }
 
 .schedule-item-info {
-    font-size: 0.9em;
-    color: var(--tg-theme-hint-color);
+  font-size: 0.9em;
+  color: var(--tg-theme-hint-color);
 }
 
 .schedule-item-type {
-    font-weight: 500;
+  font-weight: 500;
 }
 /* Стилизация типа занятия */
 .schedule-item-type.type-exam {
-    color: var(--custom-red-color);
+  color: var(--custom-red-color);
 }
 .schedule-item-type.type-info {
-    color: var(--custom-green-color);
+  color: var(--custom-green-color);
 }
 
-
 .schedule-item-no-subjects {
-    text-align: center;
-    color: var(--tg-theme-hint-color);
-    font-style: italic;
-    padding: 10px 0;
+  text-align: center;
+  color: var(--tg-theme-hint-color);
+  font-style: italic;
+  padding: 10px 0;
 }
 
 .schedule-day-today {
-    border: 2px solid var(--tg-theme-button-color);
+  border: 2px solid var(--tg-theme-button-color);
 }
 
-/* --- Useful Links --- */
+/* --- Useful Links (IMPROVED) --- */
 .useful-links-list {
-    list-style: none;
-    padding: 15px 10px;
-    margin: 0 auto;
-    max-width: 640px;
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  list-style: none;
+  padding: 15px 10px;
+  margin: 0 auto;
+  max-width: 640px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .useful-link-item a {
-    display: block;
-    background-color: var(--tg-theme-secondary-bg-color);
-    padding: 15px;
-    border-radius: 12px;
-    text-decoration: none;
-    color: var(--tg-theme-text-color);
-    transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--tg-theme-secondary-bg-color);
+  padding: 15px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--tg-theme-text-color);
+  transition: background-color 0.2s, transform 0.2s;
 }
 
-.useful-link-item a:hover {
-    /* background-color: var(--tg-theme-bg-color); */
+.useful-link-item a:active {
+  transform: scale(0.98);
+}
+
+.useful-link-content {
+  flex-grow: 1;
+  padding-right: 10px;
 }
 
 .useful-link-title {
-    font-weight: 600;
-    font-size: 1.1em;
-    color: var(--tg-theme-link-color);
+  font-weight: 600;
+  font-size: 1.1em;
+  color: var(--tg-theme-link-color);
+  margin: 0;
 }
 
 .useful-link-description {
-    font-size: 0.9em;
-    color: var(--tg-theme-hint-color);
-    margin-top: 5px;
+  font-size: 0.9em;
+  color: var(--tg-theme-hint-color);
+  margin: 5px 0 0 0;
 }
 
-/* --- Session Schedule Table --- */
+.useful-link-arrow {
+  font-size: 1.8em;
+  color: var(--tg-theme-hint-color);
+  font-weight: bold;
+  transition: transform 0.2s;
+}
+
+.useful-link-item a:hover .useful-link-arrow {
+  transform: translateX(5px);
+}
+
+/* --- Session & Directorate Schedule Tables --- */
+.session-schedule-container,
+.directorate-schedule-container {
+  padding: 0px 15px 15px 15px;
+  max-width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  /* overflow-x: auto; */
+}
+
 .session-schedule-container {
-    padding: 15px;
-    max-width: 100%;
-    margin: 0 auto;
-    box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.session-schedule-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9em;
-    background-color: var(--tg-theme-secondary-bg-color);
+.session-schedule-table,
+.directorate-schedule-table {
+  width: 100%;
+  min-width: 500px;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  background-color: var(--tg-theme-secondary-bg-color);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-.session-schedule-table caption {
-    caption-side: top;
-    font-size: 1.3em;
-    font-weight: 600;
-    padding: 10px;
-    color: var(--tg-theme-text-color);
-    background-color: var(--tg-theme-bg-color);
+.session-schedule-table caption,
+.directorate-schedule-table caption {
+  caption-side: top;
+  font-size: 1.3em;
+  font-weight: 600;
+  padding: 10px;
+  color: var(--tg-theme-text-color);
+  background-color: var(--tg-theme-bg-color);
+}
+
+.directorate-schedule-table thead {
+  background-color: var(--tg-theme-button-color);
+}
+
+.directorate-schedule-table thead th {
+  color: var(--tg-theme-button-text-color);
 }
 
 .session-schedule-table th,
-.session-schedule-table td {
-    padding: 10px;
-    text-align: center;
-    border: 1px solid var(--tg-theme-hint-color);
+.session-schedule-table td,
+.directorate-schedule-table th,
+.directorate-schedule-table td {
+  padding: 12px 15px;
+  text-align: center;
+  border: 1px solid
+    color-mix(in srgb, var(--tg-theme-secondary-bg-color) 70%, var(--tg-theme-hint-color));
 }
 
-.session-schedule-table th {
-    background-color: var(--tg-theme-bg-color);
-    font-weight: 600;
-    color: var(--tg-theme-text-color);
+.session-schedule-table thead {
+  background-color: var(--tg-theme-bg-color);
+}
+
+.session-schedule-table th,
+.directorate-schedule-table th {
+  font-weight: 600;
+  color: var(--tg-theme-text-color);
 }
 
 .session-schedule-table .course-header {
-    background-color: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
-    font-size: 1.1em;
+  background-color: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+  font-size: 1.1em;
+}
+
+.directorate-schedule-table tbody tr:nth-child(odd) {
+  background-color: var(--tg-theme-bg-color);
 }
 
 /* --- PNG List Styles --- */
 .png-list-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    align-items: center;
-    padding: 15px 10px;
-    max-width: 640px;
-    margin: 0 auto;
-    width: 100%;
-    box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  padding: 15px 10px;
+  max-width: 640px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .png-list-item {
-    width: 100%;
-    max-width: 500px;
-    height: auto;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid var(--tg-theme-hint-color);
-    display: block;
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid var(--tg-theme-hint-color);
+  display: block;
 }
 
 .png-list-item:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* --- Image Viewer Modal Styles --- */
 .image-viewer-modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.85);
-    -webkit-backdrop-filter: blur(5px);
-    backdrop-filter: blur(5px);
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    cursor: pointer;
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 .image-viewer-content {
-    max-width: 95%;
-    max-height: 95%;
-    object-fit: contain;
-    transition: transform 0.2s ease-out;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: none;
-    cursor: grab;
+  max-width: 95%;
+  max-height: 95%;
+  object-fit: contain;
+  transition: transform 0.2s ease-out;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  cursor: grab;
 }
 
-.image-viewer-content.zoomed { cursor: grabbing; }
+.image-viewer-content.zoomed {
+  cursor: grabbing;
+}

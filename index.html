@@ -48,6 +48,14 @@
           >
             График сессий
           </button>
+          <!-- НОВАЯ КНОПКА -->
+          <button
+            class="main-button"
+            data-target-page="directorate-schedule"
+            data-title="Время работы дирекции"
+          >
+            Время работы дирекции
+          </button>
         </div>
         <div id="last-updated-date" class="main-notice"></div>
       </div>
@@ -74,7 +82,7 @@
         <div class="png-list-container" id="png-list-container"></div>
       </div>
 
-      <!-- Новая страница: Полезные ссылки -->
+      <!-- Страница: Полезные ссылки -->
       <div id="page-useful-links" class="page page-with-header">
         <div class="page-header">
           <h2 class="page-title"></h2>
@@ -82,14 +90,26 @@
         <ul class="useful-links-list" id="useful-links-container"></ul>
       </div>
 
-      <!-- Новая страница: График сессий -->
+      <!-- Страница: График сессий -->
       <div id="page-session-schedule" class="page page-with-header">
         <div class="page-header">
           <h2 class="page-title"></h2>
         </div>
-        <!-- Уведомление с ссылкой -->
         <div class="page-notice">Информация взята с учебного плана</div>
         <div class="session-schedule-container" id="session-schedule-container">
+          <!-- Сюда будет вставлена таблица -->
+        </div>
+      </div>
+
+      <!-- НОВАЯ СТРАНИЦА: Расписание дирекции -->
+      <div id="page-directorate-schedule" class="page page-with-header">
+        <div class="page-header">
+          <h2 class="page-title"></h2>
+        </div>
+        <div class="page-notice" style="color: var(--custom-red-color); font-weight: bold">
+          Выходной: суббота, воскресенье
+        </div>
+        <div class="directorate-schedule-container" id="directorate-schedule-container">
           <!-- Сюда будет вставлена таблица -->
         </div>
       </div>

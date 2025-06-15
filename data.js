@@ -12,6 +12,20 @@ const announcementText =
 const lastUpdatedDate =
   "Информация актуальна на 13.06.2025<br>Автоматическое обновление данных не предусмотрено";
 
+// НОВЫЕ ДАННЫЕ: Расписание работы дирекции
+const directorateScheduleData = [
+  { day: "Понедельник", time: "8:00 - 16:30", techBreak: "8:30 - 9:30", lunch: "12:00 - 12:30" },
+  { day: "Вторник", time: "8:00 - 16:30", techBreak: "8:30 - 9:30", lunch: "12:00 - 12:30" },
+  {
+    day: "Среда",
+    time: "8:00 - 16:30",
+    techBreak: "<span style='color: var(--custom-red-color); font-weight: bold'>Нет приема</span>",
+    lunch: "—",
+  },
+  { day: "Четверг", time: "10:00 - 19:00", techBreak: "Нет перерыва", lunch: "12:00 - 12:30" },
+  { day: "Пятница", time: "8:00 - 14:00", techBreak: "8:30 - 9:30", lunch: "12:00 - 12:30" },
+];
+
 // Расписание для группы ЗИС-231
 const scheduleZis231Data = [
   {
