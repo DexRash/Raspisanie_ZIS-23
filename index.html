@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Расписание ЗИС-23</title>
+    <link rel="stylesheet" href="./style/style.css" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="./js/app.js" type="module" defer></script>
+  </head>
+  <body>
+    <div id="app-container" class="app-container">
+      <!-- Главная страница -->
+      <div id="page-main" class="page active">
+        <div class="page-main">
+          <div class="page-main-content">
+            <!-- Блок для объявлений -->
+            <div class="main-title">
+              <h1>Летняя сессия</h1>
+              <h3>26.05.2025 – 11.06.2025</h3>
+            </div>
+            <!-- <div class="announcement-banner">Какая-то информация</div> -->
+            <!-- Кнопки -->
+            <div class="main-buttons">
+              <button class="main-button" data-target-page="schedule-zis-231" data-title="ЗИС-231">
+                Расписание ЗИС-231
+              </button>
+              <button class="main-button" data-target-page="schedule-zis-232" data-title="ЗИС-232">
+                Расписание ЗИС-232
+              </button>
+              <button
+                class="main-button"
+                data-target-page="original-schedule"
+                data-title="Оригинальное расписание"
+              >
+                Оригинальное расписание
+              </button>
+
+              <hr class="main-buttons-divider" />
+
+              <button
+                class="main-button"
+                data-target-page="useful-information"
+                data-title="Полезная информация"
+              >
+                Полезная информация
+              </button>
+            </div>
+
+            <!-- Информация -->
+            <div id="last-updated-date" class="main-notice">
+              Информация актуальна на 14.06.2025<br />Автоматическое обновление данных не
+              предусмотрено!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Расписание ЗИС-231 -->
+      <div id="page-schedule-zis-231" class="page">
+        <div class="page-header">
+          <h2 class="page-title"></h2>
+        </div>
+        <div class="page-content">
+          <ul class="schedule-list" id="schedule-zis-231-list"></ul>
+        </div>
+      </div>
+
+      <!-- Расписание ЗИС-232 -->
+      <div id="page-schedule-zis-232" class="page">
+        <div class="page-header">
+          <h2 class="page-title"></h2>
+        </div>
+        <div class="page-content">
+          <ul id="schedule-zis-232-list" class="schedule-list"></ul>
+        </div>
+      </div>
+
+      <!-- Оригинальное расписание -->
+      <div id="page-original-schedule" class="page">
+        <div class="page-header">
+          <h2 class="page-title"></h2>
+        </div>
+        <div class="page-content">
+          <div id="original-schedule-list" class="original-schedule-list"></div>
+        </div>
+      </div>
+
+      <!-- График сессий -->
+      <div id="page-session-schedule" class="page">
+        <div class="page-header">
+          <h2 class="page-title"></h2>
+        </div>
+        <div class="page-content">
+          <div class="session-schedule">
+            <div class="page-notice">Информация взята с учебного плана</div>
+            <table class="session-schedule-table">
+              <thead>
+                <tr>
+                  <th>Сессия</th>
+                  <th>Кол. дней</th>
+                  <th>Дата начала</th>
+                  <th>Дата окончания</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="4">Курс 1</td>
+                </tr>
+                <tr>
+                  <td>Установочная сессия</td>
+                  <td>5</td>
+                  <td>20.10.2023</td>
+                  <td>24.10.2023</td>
+                </tr>
+                <tr>
+                  <td>Зимняя сессия</td>
+                  <td>17</td>
+                  <td>12.01.2024</td>
+                  <td>28.01.2024</td>
+                </tr>
+                <tr>
+                  <td>Летняя сессия</td>
+                  <td>18</td>
+                  <td>08.06.2024</td>
+                  <td>25.06.2024</td>
+                </tr>
+                <tr>
+                  <td colspan="4">Курс 2</td>
+                </tr>
+                <tr>
+                  <td>Установочная сессия</td>
+                  <td>2</td>
+                  <td>24.06.2024</td>
+                  <td>25.06.2024</td>
+                </tr>
+                <tr>
+                  <td>Зимняя сессия</td>
+                  <td>20</td>
+                  <td>13.01.2025</td>
+                  <td>01.02.2025</td>
+                </tr>
+                <tr>
+                  <td>Летняя сессия</td>
+                  <td>18</td>
+                  <td>27.05.2025</td>
+                  <td>13.06.2025</td>
+                </tr>
+                <tr>
+                  <td colspan="4">Курс 3</td>
+                </tr>
+                <tr>
+                  <td>Установочная сессия</td>
+                  <td>2</td>
+                  <td>09.06.2025</td>
+                  <td>10.06.2025</td>
+                </tr>
+                <tr>
+                  <td>Зимняя сессия</td>
+                  <td>25</td>
+                  <td>12.01.2026</td>
+                  <td>05.02.2026</td>
+                </tr>
+                <tr>
+                  <td>Летняя сессия</td>
+                  <td>23</td>
+                  <td>22.05.2026</td>
+                  <td>13.06.2026</td>
+                </tr>
+                <tr>
+                  <td colspan="4">Курс 4</td>
+                </tr>
+                <tr>
+                  <td>Установочная сессия</td>
+                  <td>2</td>
+                  <td>14.06.2026</td>
+                  <td>15.06.2026</td>
+                </tr>
+                <tr>
+                  <td>Зимняя сессия</td>
+                  <td>25</td>
+                  <td>12.01.2027</td>
+                  <td>05.02.2027</td>
+                </tr>
+                <tr>
+                  <td>Летняя сессия</td>
+                  <td>23</td>
+                  <td>22.05.2027</td>
+                  <td>13.06.2027</td>
+                </tr>
+                <tr>
+                  <td colspan="4">Курс 5</td>
+                </tr>
+                <tr>
+                  <td>Установочная сессия</td>
+                  <td>2</td>
+                  <td>08.06.2027</td>
+                  <td>09.06.2027</td>
+                </tr>
+                <tr>
+                  <td>Зимняя сессия</td>
+                  <td>23</td>
+                  <td>03.11.2027</td>
+                  <td>25.11.2027</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Расписание дирекции -->
+      <div id="page-directorate-schedule" class="page">
+        <div class="page-header">
+          <h2 class="page-title"></h2>
+        </div>
+        <div class="page-content">
+          <div class="directorate-schedule">
+            <div class="page-notice" style="color: var(--red-color); font-weight: bold">
+              Выходной: суббота, воскресенье
+            </div>
+            <table class="directorate-schedule-table">
+              <thead>
+                <tr>
+                  <th>День</th>
+                  <th>Время работы</th>
+                  <th>Тех. перерыв</th>
+                  <th>Обед</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Понедельник</td>
+                  <td>8:00 - 16:30</td>
+                  <td>8:30 - 9:30</td>
+                  <td>12:00 - 12:30</td>
+                </tr>
+                <tr>
+                  <td>Вторник</td>
+                  <td>8:00 - 16:30</td>
+                  <td>8:30 - 9:30</td>
+                  <td>12:00 - 12:30</td>
+                </tr>
+                <tr>
+                  <td>Среда</td>
+                  <td>8:00 - 16:30</td>
+                  <td colspan="2" style="color: var(--red-color); font-weight: bold">Нет приема</td>
+                </tr>
+                <tr>
+                  <td>Четверг</td>
+                  <td>10:00 - 19:00</td>
+                  <td>—</td>
+                  <td>12:00 - 12:30</td>
+                </tr>
+                <tr>
+                  <td>Пятница</td>
+                  <td>8:00 - 14:00</td>
+                  <td>8:30 - 9:30</td>
+                  <td>12:00 - 12:30</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Полезная информация -->
+      <div id="page-useful-information" class="page">
+        <div class="page-header">
+          <h2 class="page-title"></h2>
+        </div>
+        <div class="page-content">
+          <ul id="useful-information-list" class="useful-information-list">
+            <li class="useful-information-item">
+              <a href="https://www.sibsiu.ru/raspisanie/?schedule=6" target="_blank">
+                <div class="useful-information-content">
+                  <div class="useful-information-title">Расписание занятий СибГИУ</div>
+                  <p class="useful-information-description">
+                    Актуальное расписание учебных занятий на сайте СибГИУ.
+                  </p>
+                </div>
+                <div class="useful-information-arrow">
+                  <i class="icon-public"></i>
+                </div>
+              </a>
+            </li>
+            <li class="useful-information-item">
+              <a href="https://oop.sibsiu.ru/index.php?tr=2&fo=62&sp=2282" target="_blank">
+                <div class="useful-information-content">
+                  <div class="useful-information-title">Программа подготовки ЗИС-23</div>
+                  <p class="useful-information-description">
+                    Программа подготовки по направлению 09.03.02 «Информационные системы и
+                    технологии», заочная форма обучения, набор 2023 года.
+                  </p>
+                </div>
+                <div class="useful-information-arrow">
+                  <i class="icon-public"></i>
+                </div>
+              </a>
+            </li>
+            <li class="useful-information-item">
+              <a href="https://dekanat.sibsiu.ru/stud/Default.aspx" target="_blank">
+                <div class="useful-information-content">
+                  <div class="useful-information-title">Электронные ведомости СибГИУ</div>
+                  <p class="useful-information-description">Информация о зачетах и экзаменах.</p>
+                </div>
+                <div class="useful-information-arrow">
+                  <i class="icon-public"></i>
+                </div>
+              </a>
+            </li>
+            <li class="useful-information-item">
+              <a href="https://vk.com/ioo.sibsiu" target="_blank">
+                <div class="useful-information-content">
+                  <div class="useful-information-title">Официальная группа ИОО СибГИУ (VK)</div>
+                  <p class="useful-information-description">Актуальные объявления, новости</p>
+                </div>
+                <div class="useful-information-arrow">
+                  <i class="icon-public"></i>
+                </div>
+              </a>
+            </li>
+
+            <li class="useful-information-item">
+              <a data-target-page="session-schedule" data-title="График сессий">
+                <div class="useful-information-content">
+                  <div class="useful-information-title">График сессий</div>
+                  <p class="useful-information-description">Информация согласно учебному плану</p>
+                </div>
+                <div class="useful-information-arrow">
+                  <i class="icon-arrow-right"></i>
+                </div>
+              </a>
+            </li>
+
+            <li class="useful-information-item">
+              <a data-target-page="directorate-schedule" data-title="Время работы дирекции">
+                <div class="useful-information-content">
+                  <div class="useful-information-title">Время работы дирекции</div>
+                  <p class="useful-information-description">Информация взята с сайта СибГИУ.</p>
+                </div>
+                <div class="useful-information-arrow">
+                  <i class="icon-arrow-right"></i>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Модальное окно для просмотра изображений -->
+    <div id="image-viewer-modal" class="image-viewer-modal">
+      <img class="image-viewer-content" id="image-viewer-content" />
+    </div>
+  </body>
+</html>
