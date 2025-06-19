@@ -3,9 +3,9 @@ import { renderSchedule, renderOriginalSchedule } from "./render.js";
 import { initImageViewer, closeImageViewer, isImageViewerOpen } from "./image-viewer.js";
 
 const DATA_PATHS = {
-  ZIS_231: "../data/zis_231.json",
-  ZIS_232: "../data/zis_232.json",
-  ORIGINAL_SCHEDULE: "../data/original_schedule.json",
+  ZIS_231: "./data/zis_231.json",
+  ZIS_232: "./data/zis_232.json",
+  ORIGINAL_SCHEDULE: "./data/original_schedule.json",
 };
 
 async function fetchJsonData(path) {
